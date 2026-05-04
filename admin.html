@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Kitchen Dashboard</title>
+
+<style>
+body{
+  font-family: Arial;
+  margin: 0;
+  background:#f4f6f8;
+  padding:20px;
+}
+
+h2{
+  text-align:center;
+}
+
+.card{
+  background:white;
+  padding:15px;
+  border-radius:12px;
+  margin-bottom:15px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+button{
+  padding:10px 14px;
+  border:none;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* NAV BUTTONS */
+.top-btn{
+  position:fixed;
+  top:10px;
+}
+
+.back-btn{
+  left:10px;
+  background:#ff6b35;
+  color:white;
+}
+
+.logout-btn{
+  right:10px;
+  background:#333;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<!-- NAV BUTTONS -->
+<button class="top-btn back-btn" onclick="window.location.href='index.html'">
+⬅ Back to POS
+</button>
+
+<button class="top-btn logout-btn" onclick="logout()">
+🚪 Logout
+</button>
+
+<h2>🍳 Kitchen Dashboard</h2>
+
+<div class="card" id="stats"></div>
+
+<div class="card" id="orders"></div>
+
+<script>
+
+/* LOGOUT (session simulation) */
+function logout(){
+  alert("Logged out");
+  window.location.href="index.html";
+}
+
+/* AUTO REFRESH SYSTEM (real POS feel) */
+function loadDashboard(){
+
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+
+  let totalOrders = 0;
+  let revenue = 0;
+  let map = {};
+
+  // RESET CONTENT EACH REFRESH
+  document.getElementById("orders").innerHTML = "";
+
+  Object.values(users).forEach(u=>{
+    totalOrders += u.orders.length;
+    revenue += u.totalSpent;
+
+    u.orders.forEach(o=>{
+      o.cart.forEach(i=>{
+        map[i.name] = (map[i.name]||0)+1;
+      });
+
+      document.getElementById("orders").innerHTML += `
+        <div class="card">
+          <b>${o.name}</b> (Table ${o.table})<br>
+          Items: ${o.cart.map(i=>i.name + " x" + i.qty).join(", ")}<br>
+          Total: $${o.total}<br>
+          Time: ${o.time}<br>
+          Status: <b>${o.status || "Preparing"}</b>
+        </div>
+      `;
+    });
+  });
+
+  let popular = Object.keys(map).reduce((a,b)=>
+    map[a]>map[b]?a:b,"None");
+
+  document.getElementById("stats").innerHTML = `
+    <b>📊 Live Stats</b><br><br>
+    Total Orders: ${totalOrders}<br>
+    Revenue: $${revenue.toFixed(2)}<br>
+    Most Popular Item: ${popular}
+  `;
+}
+
+/* INIT */
+loadDashboard();
+
+/* LIVE AUTO UPDATE (REALISTIC POS FEATURE) */
+setInterval(loadDashboard, 3000);
+
+</script>
+
+</body>
+</html>
