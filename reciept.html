@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Receipt</title>
+
+<style>
+body {
+  font-family: Arial;
+  background: #f4f6f8;
+  text-align: center;
+}
+
+/* RECEIPT BOX */
+.box {
+  max-width: 380px;
+  margin: 40px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  text-align: left;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {opacity:0; transform:translateY(10px);}
+  to {opacity:1;}
+}
+
+h2 {
+  text-align: center;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  margin: 6px 0;
+}
+
+.status {
+  text-align:center;
+  background:#fff3cd;
+  padding:8px;
+  border-radius:8px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+button {
+  width: 48%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pay {
+  background:#28a745;
+  color:white;
+}
+
+.more {
+  background:#ff6b35;
+  color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>🧾 ByteBites Café</h2>
+<p style="text-align:center; font-size:12px; color:#777;">
+  Digital Receipt • Thank you!
+</p>
+
+<p class="status" id="status">Preparing...</p>
+
+<p><b>Customer:</b> <span id="name"></span></p>
+<p><b>Table:</b> <span id="table"></span></p>
+<p><b>Order ID:</b> <span id="orderId"></span></p>
+<p><b>Time:</b> <span id="time"></span></p>
+
+<hr>
+
+<div id="items"></div>
+
+<hr>
+
+<div id="summary"></div>
+
+<div style="display:flex; justify-content:space-between;">
+  <button class="pay" onclick="pay()">💳 Pay</button>
+  <button class="more" onclick="orderMore()">➕ Order More</button>
+</div>
+
+<p style="text-align:center; margin-top:15px; font-size:13px; color:#777;">
+  ❤️ Thank you for dining with ByteBites Café
+</p>
+
+</div>
+
+<script>
+
+let order = JSON.parse(localStorage.getItem("currentOrder"));
+
+if (!order) {
+  window.location.href = "index.html";
+}
+
+/* BASIC INFO */
+document.getElementById("name").innerText = order.name;
+document.getElementById("table").innerText = order.table;
+document.getElementById("time").innerText = order.time;
+document.getElementById("orderId").innerText =
+  Math.floor(Math.random()*100000);
+
+/* ITEMS (FIXED QUANTITY) */
+let subtotal = 0;
+
+order.cart.forEach(item => {
+  let qty = item.qty || 1;
+  let itemTotal = item.price * qty;
+
+  subtotal += itemTotal;
+
+  let div = document.createElement("div");
+  div.className = "item";
+  div.innerHTML = `
+    <span>${item.name} x${qty}</span>
+    <span>$${itemTotal.toFixed(2)}</span>
+  `;
+
+  document.getElementById("items").appendChild(div);
+});
+
+/* CHARGES */
+let serviceCharge = subtotal * 0.10;
+let gst = (subtotal + serviceCharge) * 0.09;
+let total = subtotal + serviceCharge + gst;
+
+/* SUMMARY */
+document.getElementById("summary").innerHTML = `
+<div class="item"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+<div class="item"><span>Service Charge (10%)</span><span>$${serviceCharge.toFixed(2)}</span></div>
+<div class="item"><span>GST (9%)</span><span>$${gst.toFixed(2)}</span></div>
+
+<hr>
+
+<div class="item"><b>Total</b><b>$${total.toFixed(2)}</b></div>
+`;
+
+/* STATUS SIMULATION */
+let status = document.getElementById("status");
+
+setTimeout(()=>status.innerText="Cooking 🍳",2000);
+setTimeout(()=>status.innerText="Ready for pickup ✅",5000);
+
+/* PAY */
+function pay() {
+  alert("Payment Successful!");
+
+  localStorage.removeItem("currentOrder");
+  localStorage.removeItem("currentUserKey");
+
+  document.body.innerHTML = `
+    <div style="font-family:Arial; text-align:center; margin-top:120px;">
+      <h2>✅ Payment Completed</h2>
+      <p>Thank you for dining with ByteBites Café!</p>
+      <button onclick="window.location.href='index.html'"
+        style="padding:10px; background:#ff6b35; color:white; border:none; border-radius:8px;">
+        Back to Menu
+      </button>
+    </div>
+  `;
+}
+
+/* ORDER MORE */
+function orderMore() {
+  window.location.href = "index.html";
+}
+
+</script>
+
+</body>
+</html>
