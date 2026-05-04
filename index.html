@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ByteBites Café Menu</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', Arial;
+  margin: 0;
+  background: #f4f6f8;
+}
+
+header {
+  background: linear-gradient(135deg,#ff6b35,#ff8c42);
+  color: white;
+  text-align: center;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+/* CARDS */
+.card {
+  background: white;
+  width: 380px;
+  padding: 18px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* MENU ITEM */
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: 0.2s;
+}
+
+.menu-item:hover {
+  background: #fff3ed;
+}
+
+.menu-img {
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* ADD BUTTON */
+.add-btn {
+  background: linear-gradient(135deg,#ff6b35,#ff8c42);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  white-space: nowrap;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+/* CART */
+.cart-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* CUSTOMER */
+.customer-box {
+  margin-top: 15px;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  background: #fafafa;
+}
+
+/* INPUT */
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin: 6px 0;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+/* BUTTON */
+button {
+  padding: 10px;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.small-btn {
+  padding: 3px 7px;
+  font-size: 12px;
+}
+
+/* CATEGORY BAR */
+.cat-bar {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.cat-bar button {
+  flex: 1;
+}
+
+/* SEARCH */
+#search {
+  margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>🍔 ByteBites Café Menu</header>
+
+<div class="container">
+
+<!-- QR CODE CARD -->
+<div class="card" style="text-align:center;">
+  <h3>📱 Scan to Order</h3>
+
+  <img 
+    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://localhost:5500/index.html"
+    style="width:150px; border-radius:10px;"
+  >
+
+  <p style="font-size:13px; color:#666;">
+    Scan with your phone to access the menu
+  </p>
+
+  <a href="index.html" style="font-size:13px;">
+    Open menu on this device
+  </a>
+</div>
+
+<!-- MENU -->
+<div class="card">
+<h3>🍽️ Menu</h3>
+<h4 style="margin-bottom:5px; color:#666;">Browse items</h4>
+
+<input id="search" placeholder="Search food..." onkeyup="filterMenu()">
+
+<div class="cat-bar">
+  <button onclick="showCategory('all')">All</button>
+  <button onclick="showCategory('mains')">Mains</button>
+  <button onclick="showCategory('drinks')">Drinks</button>
+  <button onclick="showCategory('snacks')">Snacks</button>
+</div>
+
+<div id="menuList"></div>
+</div>
+
+<!-- ORDER -->
+<div class="card">
+<h3>🧾 Your Order</h3>
+<h4 style="margin-bottom:5px; color:#666;">Order Summary</h4>
+
+<div id="cart"></div>
+
+<hr>
+<b id="total">Total: $0.00</b>
+
+<div class="customer-box">
+<h4>👤 Customer Details</h4>
+
+<input id="name" placeholder="Enter name">
+
+<select id="table">
+<option value="">Select Table</option>
+<option>1</option><option>2</option><option>3</option>
+<option>4</option><option>5</option><option>6</option>
+</select>
+</div>
+
+<button onclick="placeOrder()">Place Order</button>
+
+</div>
+
+</div>
+
+<script>
+
+let menu = [
+  {name:"Chicken Rice", price:6.5, category:"mains",
+   img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqc-HaNwYmWoowJFSNsbJrup2Y_hSrPgWzshTy9OCnLNe8NwmnUOkToZ6UaJYveBav9ptj8CMNTGqcqkQv9fvMpin_VUgDU1k70XiBnL0T&s=10"},
+  {name:"Laksa", price:5.5, category:"mains",
+   img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy8xatU5SViMQxIF7esHjd2ADjJMiwGhN1xOGe3fEoDKQ-MGbhWS61qhv0ChQhL-bWycliEwLjlyzfccEeiDnEZqVZAqH5avJjlmU61ILbOw&s=10"},
+  {name:"Burger", price:8.5, category:"mains",
+   img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
+  {name:"Iced Tea", price:2.5, category:"drinks",
+   img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc"},
+  {name:"Fries", price:3.5, category:"snacks",
+   img:"https://images.unsplash.com/photo-1576107232684-1279f390859f"}
+];
+
+let cart = [];
+let currentCategory = "all";
+
+/* ADMIN ACCESS */
+document.addEventListener("keydown", function(e) {
+  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
+    window.location.href = "admin.html";
+  }
+});
+
+/* MENU */
+function renderMenu(){
+  let list = document.getElementById("menuList");
+  list.innerHTML = "";
+
+  menu.forEach(item=>{
+    if(currentCategory !== "all" && item.category !== currentCategory) return;
+
+    list.innerHTML += `
+      <div class="menu-item">
+        <img class="menu-img" src="${item.img}">
+        <div style="flex:1">
+          <b>${item.name}</b><br>
+          $${item.price}
+        </div>
+        <button class="add-btn" onclick="addItem('${item.name}',${item.price})">
+          🛒 Add to Cart
+        </button>
+      </div>
+    `;
+  });
+}
+
+function showCategory(cat){
+  currentCategory = cat;
+  renderMenu();
+}
+
+function filterMenu(){
+  let val = document.getElementById("search").value.toLowerCase();
+  let list = document.getElementById("menuList");
+  list.innerHTML = "";
+
+  menu.forEach(item=>{
+    if(!item.name.toLowerCase().includes(val)) return;
+
+    list.innerHTML += `
+      <div class="menu-item">
+        <img class="menu-img" src="${item.img}">
+        <div style="flex:1">
+          <b>${item.name}</b><br>
+          $${item.price}
+        </div>
+        <button class="add-btn" onclick="addItem('${item.name}',${item.price})">
+          🛒 Add to Cart
+        </button>
+      </div>
+    `;
+  });
+}
+
+/* CART */
+function addItem(name, price){
+  let found = cart.find(i => i.name === name);
+  if(found){
+    found.qty++;
+  } else {
+    cart.push({name, price, qty:1});
+  }
+  renderCart();
+}
+
+function removeItem(i){
+  if(cart[i].qty > 1){
+    cart[i].qty--;
+  } else {
+    cart.splice(i,1);
+  }
+  renderCart();
+}
+
+function renderCart(){
+  let div = document.getElementById("cart");
+  div.innerHTML = "";
+
+  let total = 0;
+
+  cart.forEach((c,i)=>{
+    total += c.price * c.qty;
+
+    div.innerHTML += `
+      <div class="cart-item">
+        <div>
+          <b>${c.name}</b><br>
+          $${c.price} × ${c.qty}
+        </div>
+
+        <div>
+          <button class="small-btn" onclick="addItem('${c.name}',${c.price})">+</button>
+          <button class="small-btn" style="background:red" onclick="removeItem(${i})">-</button>
+        </div>
+      </div>
+    `;
+  });
+
+  document.getElementById("total").innerText =
+    "Total: $" + total.toFixed(2);
+}
+
+/* ORDER */
+function placeOrder(){
+  let name = document.getElementById("name").value.trim();
+  let table = document.getElementById("table").value || "N/A";
+
+  if(!name || cart.length === 0){
+    alert("Fill all details");
+    return;
+  }
+
+  let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
+
+  let order = {
+    name,
+    table,
+    cart,
+    total,
+    status:"Preparing",
+    time:new Date().toLocaleString()
+  };
+
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+  let key = name + "_" + table;
+
+  if(!users[key]) users[key] = {orders:[], totalSpent:0};
+
+  users[key].orders.push(order);
+  users[key].totalSpent += total;
+
+  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem("currentOrder", JSON.stringify(order));
+  localStorage.setItem("currentUserKey", key);
+
+  alert("Order placed!");
+
+  setTimeout(()=>{
+    window.location.href = "receipt.html";
+  },1000);
+}
+
+renderMenu();
+</script>
+
+</body>
+</html>
