@@ -2,317 +2,961 @@
 <html>
 <head>
 <title>ByteBites Café Menu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-body {
-  font-family: 'Segoe UI', Arial;
-  margin: 0;
-  background: #f4f6f8;
+/* =========================
+   BODY
+========================= */
+
+body{
+  font-family:'Segoe UI',Arial;
+  margin:0;
+  background:#f4f6f8;
+  transition: background 0.6s ease, color 0.3s ease;
 }
 
-header {
+/* =========================
+   DARK MODE
+========================= */
+
+.dark{
+  background:
+  radial-gradient(circle at top left,#2b1055,#1a1a2e 45%,#0f0f17);
+
+  color:#f5f5f5;
+
+  overflow-x:hidden;
+  transition: background 0.6s ease, color 0.3s ease;
+}
+
+/* GLOW BLOBS (FIXED: PURPLE THEME ONLY) */
+
+.dark::before{
+  content:"";
+  position:fixed;
+
+  width:500px;
+  height:500px;
+
+  background:#a855f7;
+
+  filter:blur(180px);
+
+  opacity:0.14;
+
+  top:-120px;
+  left:-120px;
+
+  z-index:-1;
+
+  animation:floatBlob1 12s ease-in-out infinite;
+}
+
+.dark::after{
+  content:"";
+  position:fixed;
+
+  width:420px;
+  height:420px;
+
+  background:#4f46e5;
+
+  filter:blur(160px);
+
+  opacity:0.12;
+
+  bottom:-120px;
+  right:-120px;
+
+  z-index:-1;
+
+  animation:floatBlob2 14s ease-in-out infinite;
+}
+
+@keyframes floatBlob1{
+  0%{transform:translate(0,0);}
+  50%{transform:translate(40px,30px);}
+  100%{transform:translate(0,0);}
+}
+
+@keyframes floatBlob2{
+  0%{transform:translate(0,0);}
+  50%{transform:translate(-35px,-25px);}
+  100%{transform:translate(0,0);}
+}
+
+/* =========================
+   HEADER (LIGHT ORANGE / DARK PURPLE)
+========================= */
+
+header{
   background: linear-gradient(135deg,#ff6b35,#ff8c42);
-  color: white;
-  text-align: center;
-  padding: 18px;
-  font-size: 20px;
-  font-weight: bold;
+  color:white;
+  text-align:center;
+  padding:18px;
+  font-size:22px;
+  font-weight:bold;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 5px 20px rgba(0,0,0,0.15);
 }
 
-.container {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 20px;
-  flex-wrap: wrap;
+.dark header{
+  background: linear-gradient(135deg,#7b2ff7,#4f46e5);
 }
 
-/* CARDS */
-.card {
-  background: white;
-  width: 380px;
-  padding: 18px;
-  border-radius: 18px;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+/* =========================
+   CONTAINER
+========================= */
+
+.container{
+  display:flex;
+  justify-content:center;
+  gap:20px;
+  padding:20px;
+  flex-wrap:wrap;
 }
 
-/* MENU ITEM */
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px;
-  border-radius: 12px;
-  margin-bottom: 8px;
-  transition: 0.2s;
+/* =========================
+   CARDS
+========================= */
+
+.card{
+
+  background:white;
+
+  width:380px;
+
+  padding:18px;
+
+  border-radius:18px;
+
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+
+  transition:0.3s;
 }
 
-.menu-item:hover {
-  background: #fff3ed;
+.dark .card{
+
+  background: rgba(255,255,255,0.06);
+
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+
+  border:1px solid rgba(255,255,255,0.08);
+
+  box-shadow:0 8px 32px rgba(0,0,0,0.35);
 }
 
-.menu-img {
-  width: 60px;
-  height: 60px;
-  border-radius: 10px;
-  object-fit: cover;
+.dark .card:hover{
+
+  transform:translateY(-5px);
+
+  box-shadow:
+  0 12px 35px rgba(0,0,0,0.4),
+  0 0 18px rgba(139,92,246,0.25);
+}
+
+/* =========================
+   MENU ITEMS
+========================= */
+
+.menu-item{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:12px;
+
+  padding:10px;
+
+  border-radius:12px;
+
+  margin-bottom:8px;
+
+  transition:0.25s;
+}
+
+.menu-item:hover{
+  background:#fff3ed;
+  transform:translateY(-2px);
+}
+
+.dark .menu-item:hover{
+  background:rgba(139,92,246,0.12);
+  transform:translateY(-2px) scale(1.01);
+}
+
+/* =========================
+   MENU IMAGE
+========================= */
+
+.menu-img{
+
+  width:65px;
+  height:65px;
+
+  border-radius:10px;
+
+  object-fit:cover;
+}
+
+/* =========================
+   BUTTONS (ANIMATION RESTORED)
+========================= */
+
+button{
+
+  padding:10px;
+
+  border:none;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  transition: all 0.25s ease;
+}
+
+button:hover{
+  transform:translateY(-3px);
+}
+
+button:active{
+  transform:scale(0.98);
 }
 
 /* ADD BUTTON */
-.add-btn {
+
+.add-btn{
+
   background: linear-gradient(135deg,#ff6b35,#ff8c42);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 13px;
-  white-space: nowrap;
-  color: white;
-  border: none;
-  cursor: pointer;
+
+  color:white;
+
+  box-shadow:0 4px 15px rgba(255,107,53,0.25);
 }
 
-/* CART */
-.cart-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #eee;
+.dark .add-btn{
+
+  background: linear-gradient(135deg,#7b2ff7,#4f46e5);
+
+  box-shadow:0 4px 15px rgba(123,47,247,0.25);
 }
 
-/* CUSTOMER */
-.customer-box {
-  margin-top: 15px;
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 12px;
-  background: #fafafa;
+/* =========================
+   PLACE ORDER BUTTON (FIXED BUG)
+========================= */
+
+.place-order-btn{
+  width:100%;
+  background: linear-gradient(135deg,#ff6b35,#ff8c42);
+  color:white;
 }
 
-/* INPUT */
-input, select {
-  width: 100%;
-  padding: 10px;
-  margin: 6px 0;
-  border-radius: 10px;
-  border: 1px solid #ddd;
+.dark .place-order-btn{
+  background: linear-gradient(135deg,#7b2ff7,#4f46e5);
 }
 
-/* BUTTON */
-button {
-  padding: 10px;
-  background: #ff6b35;
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+/* =========================
+   CART
+========================= */
+
+.cart-item{
+
+  display:flex;
+
+  justify-content:space-between;
+
+  border-bottom:1px solid #eee;
+
+  padding:8px 0;
 }
 
-.small-btn {
-  padding: 3px 7px;
-  font-size: 12px;
+.dark .cart-item{
+  border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
-/* CATEGORY BAR */
-.cat-bar {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 10px;
+/* =========================
+   INPUTS + DROPDOWN FIX
+========================= */
+
+input,
+select{
+
+  width:100%;
+
+  padding:10px;
+
+  margin:6px 0;
+
+  border-radius:10px;
+
+  border:1px solid #ddd;
+
+  box-sizing:border-box;
 }
 
-.cat-bar button {
-  flex: 1;
+.dark input,
+.dark select{
+
+  background:rgba(255,255,255,0.05);
+
+  color:white;
+
+  border:1px solid rgba(255,255,255,0.08);
 }
 
-/* SEARCH */
-#search {
-  margin-bottom: 10px;
+.dark option{
+  background:#1a1a2e;
+  color:white;
+}
+
+/* =========================
+   CATEGORY BAR
+========================= */
+
+.cat-bar{
+  display:flex;
+  gap:5px;
+  margin-bottom:10px;
+}
+
+.cat-bar button{
+  flex:1;
+  background:#ff6b35;
+  color:white;
+}
+
+.dark .cat-bar button{
+  background: linear-gradient(135deg,#7b2ff7,#4f46e5);
+}
+
+/* =========================
+   NOTIFICATION
+========================= */
+
+.notify{
+
+  position:fixed;
+
+  top:20px;
+
+  left:50%;
+
+  transform:translateX(-50%);
+
+  background:#28a745;
+
+  color:white;
+
+  padding:14px 18px;
+
+  border-radius:12px;
+
+  display:none;
+
+  opacity:0;
+
+  transition:opacity 0.3s ease;
+
+  z-index:9999;
+
+  font-weight:bold;
+}
+
+/* =========================
+   CUSTOM BOX
+========================= */
+
+#customBox{
+
+  display:none;
+
+  position:fixed;
+
+  top:50%;
+
+  left:50%;
+
+  transform:translate(-50%,-50%);
+
+  background:white;
+
+  padding:18px;
+
+  border-radius:16px;
+
+  z-index:9999;
+
+  width:320px;
+
+  box-shadow:0 12px 35px rgba(0,0,0,0.25);
+
+  max-height:80vh;
+
+  overflow-y:auto;
+}
+
+.dark #customBox{
+
+  background:rgba(30,30,30,0.92);
+
+  backdrop-filter:blur(18px);
+
+  color:white;
+
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+/* =========================
+   EXTRA ITEMS
+========================= */
+
+.extras-grid{
+
+  display:grid;
+
+  grid-template-columns:1fr 1fr;
+
+  gap:10px;
+
+  margin-top:8px;
+}
+
+.extra-item{
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  padding:10px;
+
+  border:1px solid #ddd;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-size:14px;
+}
+
+.dark .extra-item{
+
+  background:rgba(255,255,255,0.04);
+
+  border:1px solid rgba(255,255,255,0.08);
+}
+
+.extra-item input{
+  width:auto;
+  margin:0;
+}
+
+/* =========================
+   TOGGLE BUTTON (FIXED VISIBILITY)
+========================= */
+
+.toggle{
+
+  position:fixed;
+
+  left:15px;
+
+  bottom:15px;
+
+  background:rgba(0,0,0,0.2);
+
+  color:white;
+
+  z-index:999;
+
+  opacity:0.6;
+
+  border:1px solid rgba(0,0,0,0.08);
+
+  backdrop-filter:blur(8px);
+
+  transition:all 0.25s ease;
+}
+
+.toggle:hover{
+  opacity:1;
+  transform:scale(1.05);
+}
+
+.dark .toggle{
+  background:rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.12);
+}
+
+/* =========================
+   ADMIN BUTTON
+========================= */
+
+#adminAccess{
+
+  position:fixed;
+
+  bottom:15px;
+
+  right:15px;
+
+  width:28px;
+
+  height:28px;
+
+  border-radius:50%;
+
+  background:black;
+
+  opacity:0.12;
+
+  cursor:pointer;
+
+  z-index:999;
+}
+
+/* =========================
+   QR BOX
+========================= */
+
+.qr-box{
+  text-align:center;
+}
+
+.qr-box img{
+  display:block;
+  margin:0 auto;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:900px){
+  .card{
+    width:100%;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<header>🍔 ByteBites Café Menu</header>
+<header>🍔 ByteBites Café</header>
+
+<button class="toggle" onclick="toggleDarkMode()">
+  🌙 Mode
+</button>
+
+<div class="notify" id="notify">✅ Added to cart</div>
+
+<!-- ADMIN BUTTON -->
+<div id="adminAccess" onclick="goAdmin()"></div>
 
 <div class="container">
 
-<!-- QR CODE CARD -->
-<div class="card" style="text-align:center;">
-  <h3>📱 Scan to Order</h3>
+  <!-- QR CARD -->
+  <div class="card qr-box">
+    <h3>📱 Scan to Order</h3>
 
-  <img 
-    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=http://localhost:5500/index.html"
-    style="width:150px; border-radius:10px;"
-  >
+    <img
+    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=index.html"
+    style="width:150px;">
 
-  <p style="font-size:13px; color:#666;">
-    Scan with your phone to access the menu
-  </p>
+    <p>Scan to access menu</p>
+  </div>
 
-  <a href="index.html" style="font-size:13px;">
-    Open menu on this device
-  </a>
+  <!-- MENU -->
+  <div class="card">
+
+    <h3>🍽️ Menu</h3>
+
+    <input id="search" placeholder="Search..." onkeyup="filterMenu()">
+
+    <div class="cat-bar">
+      <button onclick="showCategory('all')">All</button>
+      <button onclick="showCategory('mains')">Mains</button>
+      <button onclick="showCategory('drinks')">Drinks</button>
+      <button onclick="showCategory('snacks')">Snacks</button>
+    </div>
+
+    <div id="menuList"></div>
+
+  </div>
+
+  <!-- CART -->
+  <div class="card">
+
+    <h3>🧾 Your Order</h3>
+
+    <div id="cart"></div>
+
+    <hr>
+
+    <b id="total">Total: $0.00</b>
+
+    <p id="waitTime">⏳ Estimated wait: 0 mins</p>
+
+    <h4>👤 Customer Details</h4>
+
+    <input id="name" placeholder="Name">
+
+    <select id="table">
+      <option value="">Select Table</option>
+      <option>1</option>
+      <option>2</option>
+      <option>3</option>
+      <option>4</option>
+      <option>5</option>
+      <option>6</option>
+    </select>
+
+    <button class="place-order-btn" onclick="placeOrder()">
+  Place Order
+</button>
+
+  </div>
+
 </div>
 
-<!-- MENU -->
-<div class="card">
-<h3>🍽️ Menu</h3>
-<h4 style="margin-bottom:5px; color:#666;">Browse items</h4>
+<!-- CUSTOM BOX -->
+<div id="customBox">
 
-<input id="search" placeholder="Search food..." onkeyup="filterMenu()">
+  <h3 id="customTitle"></h3>
 
-<div class="cat-bar">
-  <button onclick="showCategory('all')">All</button>
-  <button onclick="showCategory('mains')">Mains</button>
-  <button onclick="showCategory('drinks')">Drinks</button>
-  <button onclick="showCategory('snacks')">Snacks</button>
-</div>
+  <div class="custom-section">
 
-<div id="menuList"></div>
-</div>
+    <label>Spice Level</label>
 
-<!-- ORDER -->
-<div class="card">
-<h3>🧾 Your Order</h3>
-<h4 style="margin-bottom:5px; color:#666;">Order Summary</h4>
+    <select id="spice">
+      <option>None</option>
+      <option>Mild</option>
+      <option>Medium</option>
+      <option>Spicy</option>
+    </select>
 
-<div id="cart"></div>
+  </div>
 
-<hr>
-<b id="total">Total: $0.00</b>
+  <div class="custom-section">
 
-<div class="customer-box">
-<h4>👤 Customer Details</h4>
+    <label>Extras</label>
 
-<input id="name" placeholder="Enter name">
+    <div class="extras-grid">
 
-<select id="table">
-<option value="">Select Table</option>
-<option>1</option><option>2</option><option>3</option>
-<option>4</option><option>5</option><option>6</option>
-</select>
-</div>
+      <label class="extra-item">
+        <input type="checkbox" value="Cheese">
+        🧀 Cheese (+$1)
+      </label>
 
-<button onclick="placeOrder()">Place Order</button>
+      <label class="extra-item">
+        <input type="checkbox" value="Egg">
+        🥚 Egg (+$1.5)
+      </label>
 
-</div>
+      <label class="extra-item">
+        <input type="checkbox" value="Extra Prawn">
+        🍤 Extra Prawn (+$2)
+      </label>
+
+      <label class="extra-item">
+        <input type="checkbox" value="More Chicken">
+        🍗 More Chicken (+$2)
+      </label>
+
+      <label class="extra-item">
+        <input type="checkbox" value="No Ice">
+        🧊 No Ice
+      </label>
+
+      <label class="extra-item">
+        <input type="checkbox" value="More Ice">
+        🧊 More Ice
+      </label>
+
+    </div>
+
+  </div>
+
+  <br>
+
+  <button
+  onclick="confirmAdd()"
+  style="background:#ff6b35;color:white;width:100%">
+  Add to Cart
+  </button>
+
+  <br><br>
+
+  <button onclick="closeCustom()" style="width:100%">
+  Cancel
+  </button>
 
 </div>
 
 <script>
 
 let menu = [
-  {name:"Chicken Rice", price:6.5, category:"mains",
-   img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqc-HaNwYmWoowJFSNsbJrup2Y_hSrPgWzshTy9OCnLNe8NwmnUOkToZ6UaJYveBav9ptj8CMNTGqcqkQv9fvMpin_VUgDU1k70XiBnL0T&s=10"},
-  {name:"Laksa", price:5.5, category:"mains",
-   img:"https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRy8xatU5SViMQxIF7esHjd2ADjJMiwGhN1xOGe3fEoDKQ-MGbhWS61qhv0ChQhL-bWycliEwLjlyzfccEeiDnEZqVZAqH5avJjlmU61ILbOw&s=10"},
-  {name:"Burger", price:8.5, category:"mains",
-   img:"https://images.unsplash.com/photo-1568901346375-23c9450c58cd"},
-  {name:"Iced Tea", price:2.5, category:"drinks",
-   img:"https://images.unsplash.com/photo-1556679343-c7306c1976bc"},
-  {name:"Fries", price:3.5, category:"snacks",
-   img:"https://images.unsplash.com/photo-1576107232684-1279f390859f"}
+{
+  id: "chicken_rice",
+  name: "Chicken Rice",
+  basePrice: 6.5,
+  category: "mains",
+  img: "https://images.unsplash.com/photo-1604908176997-125f25cc6f3d",
+  rating: 4.6,
+  prepTime: 6,
+  tags: ["rice", "chicken"],
+  options: {
+    spice: ["None", "Mild", "Medium", "Spicy"],
+    extras: [
+      { name: "Egg", price: 1.5 },
+      { name: "More Chicken", price: 2 }
+    ]
+  }
+},
+{
+  id: "laksa",
+  name: "Laksa",
+  basePrice: 5.5,
+  category: "mains",
+  img: "https://images.unsplash.com/photo-1512058564366-18510be2db19",
+  rating: 4.5,
+  prepTime: 7,
+  tags: ["spicy", "noodles"],
+  options: {
+    spice: ["Mild", "Medium", "Spicy"],
+    extras: [
+      { name: "Egg", price: 1.5 },
+      { name: "Extra Prawn", price: 2 }
+    ]
+  }
+},
+{
+  id: "burger",
+  name: "Burger",
+  basePrice: 8.5,
+  category: "mains",
+  img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd",
+  rating: 4.7,
+  prepTime: 5,
+  tags: ["burger"],
+  options: {
+    spice: ["None"],
+    extras: [
+      { name: "Cheese", price: 1 },
+      { name: "Egg", price: 1.5 }
+    ]
+  }
+},
+{
+  id: "iced_tea",
+  name: "Iced Tea",
+  basePrice: 2.5,
+  category: "drinks",
+  img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc",
+  rating: 4.2,
+  prepTime: 2,
+  tags: ["drink", "cold"],
+  options: {
+    spice: [],
+    extras: [
+      { name: "No Ice", price: 0 },
+      { name: "More Ice", price: 0 }
+    ]
+  }
+},
+{
+  id: "fries",
+  name: "Fries",
+  basePrice: 3.5,
+  category: "snacks",
+  img: "https://images.unsplash.com/photo-1576107232684-1279f390859f",
+  rating: 4.3,
+  prepTime: 4,
+  tags: ["crispy"],
+  options: {
+    spice: [],
+    extras: [
+      { name: "Cheese", price: 1 }
+    ]
+  }
+}
 ];
 
 let cart = [];
 let currentCategory = "all";
+let tempItem = null;
 
-/* ADMIN ACCESS */
-document.addEventListener("keydown", function(e) {
-  if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === "a") {
-    window.location.href = "admin.html";
-  }
-});
+/* ================= MENU ================= */
 
-/* MENU */
-function renderMenu(){
-  let list = document.getElementById("menuList");
-  list.innerHTML = "";
+function renderMenu(list = menu){
 
-  menu.forEach(item=>{
-    if(currentCategory !== "all" && item.category !== currentCategory) return;
+  let html = "";
 
-    list.innerHTML += `
+  list.forEach(item => {
+    html += `
       <div class="menu-item">
         <img class="menu-img" src="${item.img}">
+
         <div style="flex:1">
           <b>${item.name}</b><br>
-          $${item.price}
+          ⭐ ${item.rating} • ${item.prepTime} min<br>
+          $${item.basePrice.toFixed(2)}
         </div>
-        <button class="add-btn" onclick="addItem('${item.name}',${item.price})">
-          🛒 Add to Cart
+
+        <button class="add-btn"
+        onclick="openCustomize('${item.id}')">
+          Add
         </button>
       </div>
     `;
   });
+
+  document.getElementById("menuList").innerHTML = html;
 }
 
-function showCategory(cat){
-  currentCategory = cat;
-  renderMenu();
-}
+/* ================= SEARCH ================= */
 
 function filterMenu(){
   let val = document.getElementById("search").value.toLowerCase();
-  let list = document.getElementById("menuList");
-  list.innerHTML = "";
 
-  menu.forEach(item=>{
-    if(!item.name.toLowerCase().includes(val)) return;
+  let filtered = menu.filter(item =>
+    item.name.toLowerCase().includes(val) ||
+    item.tags.some(t => t.includes(val)) ||
+    item.category.includes(val)
+  );
 
-    list.innerHTML += `
-      <div class="menu-item">
-        <img class="menu-img" src="${item.img}">
-        <div style="flex:1">
-          <b>${item.name}</b><br>
-          $${item.price}
-        </div>
-        <button class="add-btn" onclick="addItem('${item.name}',${item.price})">
-          🛒 Add to Cart
-        </button>
-      </div>
-    `;
-  });
+  renderMenu(filtered);
 }
 
-/* CART */
+/* ================= CATEGORY ================= */
+
+function showCategory(cat){
+  currentCategory = cat;
+
+  if(cat === "all"){
+    renderMenu();
+  } else {
+    renderMenu(menu.filter(m => m.category === cat));
+  }
+}
+
+/* ================= CUSTOMIZE ================= */
+
+function openCustomize(id){
+
+  let item = menu.find(m => m.id === id);
+  tempItem = item;
+
+  document.getElementById("customTitle").innerText = item.name;
+
+  /* spice */
+  let spiceHTML = item.options.spice.length
+    ? item.options.spice.map(s => `<option>${s}</option>`).join("")
+    : `<option>None</option>`;
+
+  document.getElementById("spice").innerHTML = spiceHTML;
+
+  /* extras */
+  let extrasHTML = item.options.extras.map(e => `
+    <label class="extra-item">
+      <input type="checkbox" value="${e.name}" data-price="${e.price}">
+      ${e.name} (+$${e.price})
+    </label>
+  `).join("");
+
+  document.querySelector(".extras-grid").innerHTML = extrasHTML;
+
+  document.getElementById("customBox").style.display = "block";
+}
+
+/* ================= CONFIRM ADD ================= */
+
+function confirmAdd(){
+
+  let spice = document.getElementById("spice").value;
+
+  let extras = [];
+  let extraPrice = 0;
+
+  document.querySelectorAll("#customBox input[type=checkbox]")
+  .forEach(cb => {
+    if(cb.checked){
+      extras.push(cb.value);
+      extraPrice += parseFloat(cb.dataset.price || 0);
+    }
+  });
+
+  let finalPrice = tempItem.basePrice + extraPrice;
+
+  let finalName =
+    tempItem.name +
+    " (" +
+    spice +
+    (extras.length ? ", " + extras.join(", ") : "") +
+    ")";
+
+  addItem(finalName, finalPrice);
+
+  closeCustom();
+}
+
+/* ================= CART ================= */
+
 function addItem(name, price){
+
   let found = cart.find(i => i.name === name);
+
   if(found){
     found.qty++;
   } else {
-    cart.push({name, price, qty:1});
+    cart.push({ name, price, qty: 1 });
   }
+
+  renderCart();
+  showNotify();
+}
+
+function removeItem(index){
+
+  if(cart[index].qty > 1){
+    cart[index].qty--;
+  } else {
+    cart.splice(index, 1);
+  }
+
   renderCart();
 }
 
-function removeItem(i){
-  if(cart[i].qty > 1){
-    cart[i].qty--;
-  } else {
-    cart.splice(i,1);
-  }
-  renderCart();
-}
+/* ================= CART RENDER ================= */
 
 function renderCart(){
+
   let div = document.getElementById("cart");
   div.innerHTML = "";
 
   let total = 0;
 
-  cart.forEach((c,i)=>{
+  cart.forEach((c, i) => {
+
     total += c.price * c.qty;
 
     div.innerHTML += `
       <div class="cart-item">
         <div>
           <b>${c.name}</b><br>
-          $${c.price} × ${c.qty}
+          $${c.price.toFixed(2)} × ${c.qty}
         </div>
 
         <div>
-          <button class="small-btn" onclick="addItem('${c.name}',${c.price})">+</button>
-          <button class="small-btn" style="background:red" onclick="removeItem(${i})">-</button>
+          <button onclick="addItem('${c.name}', ${c.price})">+</button>
+          <button onclick="removeItem(${i})" style="background:red;color:white;">-</button>
         </div>
       </div>
     `;
@@ -320,49 +964,115 @@ function renderCart(){
 
   document.getElementById("total").innerText =
     "Total: $" + total.toFixed(2);
+
+  document.getElementById("waitTime").innerText =
+    "⏳ Estimated wait: " + (cart.reduce((s,i)=>s+i.qty*3,0)) + " mins";
 }
 
-/* ORDER */
-function placeOrder(){
-  let name = document.getElementById("name").value.trim();
-  let table = document.getElementById("table").value || "N/A";
+/* ================= NOTIFY ================= */
 
-  if(!name || cart.length === 0){
-    alert("Fill all details");
+function showNotify(){
+  let n = document.getElementById("notify");
+  n.style.display = "block";
+  n.style.opacity = "1";
+
+  setTimeout(() => {
+    n.style.opacity = "0";
+    setTimeout(() => n.style.display = "none", 300);
+  }, 1200);
+}
+
+/* ================= DARK MODE ================= */
+
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+
+  let btn = document.querySelector(".toggle");
+  btn.innerHTML = document.body.classList.contains("dark")
+    ? "☀️ Mode"
+    : "🌙 Mode";
+}
+
+/* ================= ADMIN ================= */
+
+function goAdmin(){
+  let pass = prompt("Enter admin password");
+
+  if(pass === "1234"){
+    location.href = "admin.html";
+  } else {
+    alert("Wrong password");
+  }
+}
+
+/* ================= CUSTOM BOX ================= */
+
+function closeCustom(){
+  document.getElementById("customBox").style.display = "none";
+}
+
+/* ================= INIT ================= */
+
+renderMenu();
+function placeOrder(){
+
+  let name = document.getElementById("name").value.trim();
+  let table = document.getElementById("table").value;
+
+  if(!name){
+    alert("Please enter your name!");
     return;
   }
 
-  let total = cart.reduce((s,i)=>s + i.price*i.qty,0);
+  if(!table){
+    alert("Please select a table!");
+    return;
+  }
 
-  let order = {
+  if(cart.length === 0){
+    alert("Your cart is empty!");
+    return;
+  }
+
+  let total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+
+  if(!users[name]){
+    users[name] = {
+      totalSpent: 0,
+      orders: []
+    };
+  }
+
+  let orderData = {
     name,
     table,
     cart,
     total,
-    status:"Preparing",
-    time:new Date().toLocaleString()
+    status: "Preparing",
+    time: new Date().toLocaleString(),
+    orderId: "BB" + Date.now()
   };
 
-  let users = JSON.parse(localStorage.getItem("users")) || {};
-  let key = name + "_" + table;
-
-  if(!users[key]) users[key] = {orders:[], totalSpent:0};
-
-  users[key].orders.push(order);
-  users[key].totalSpent += total;
+  users[name].orders.push(orderData);
+  users[name].totalSpent += total;
 
   localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("currentOrder", JSON.stringify(order));
-  localStorage.setItem("currentUserKey", key);
+  localStorage.setItem("lastOrder", JSON.stringify(orderData));
 
   alert("Order placed!");
 
-  setTimeout(()=>{
-    window.location.href = "receipt.html";
-  },1000);
-}
+  cart = [];
+  renderCart();
 
-renderMenu();
+  document.getElementById("name").value = "";
+  document.getElementById("table").value = "";
+
+  setTimeout(() => {
+    location.href = "receipt.html";
+  }, 800);
+}
 </script>
 
 </body>
