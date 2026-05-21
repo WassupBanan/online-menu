@@ -2,38 +2,37 @@
 <html>
 <head>
 <title>Kitchen Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
 body{
-  font-family: Arial;
-  margin: 0;
+  font-family:'Segoe UI', Arial;
+  margin:0;
   background:#f4f6f8;
   padding:20px;
+  color:#222;
 }
+
+/* HEADER */
 
 h2{
   text-align:center;
-}
-
-.card{
-  background:white;
-  padding:15px;
-  border-radius:12px;
   margin-bottom:15px;
-  box-shadow:0 4px 10px rgba(0,0,0,0.08);
+  font-size:30px;
 }
 
-button{
-  padding:10px 14px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-}
+/* TOP BUTTONS */
 
-/* NAV BUTTONS */
 .top-btn{
   position:fixed;
   top:10px;
+  padding:10px 14px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+  z-index:999;
 }
 
 .back-btn{
@@ -44,86 +43,622 @@ button{
 
 .logout-btn{
   right:10px;
-  background:#333;
+  background:#222;
   color:white;
 }
+
+/* STATS */
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+  margin-bottom:18px;
+}
+
+.stat{
+  background:white;
+  padding:18px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 6px 16px rgba(0,0,0,0.08);
+}
+
+.stat h3{
+  margin:0;
+  font-size:28px;
+  color:#ff6b35;
+}
+
+.stat p{
+  margin-top:5px;
+  color:#777;
+}
+
+/* FILTERS */
+
+.filters{
+  display:flex;
+  gap:8px;
+  margin-bottom:12px;
+  flex-wrap:wrap;
+}
+
+.filters button{
+  flex:1;
+  min-width:100px;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#ddd;
+  font-weight:bold;
+  transition:0.2s;
+}
+
+.filters button.active{
+  background:#ff6b35;
+  color:white;
+}
+
+/* SEARCH */
+
+input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  margin-bottom:15px;
+  font-size:15px;
+  box-sizing:border-box;
+}
+
+/* ORDER CARD */
+
+.card{
+  background:white;
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:15px;
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  transition:0.25s;
+}
+
+.card:hover{
+  transform:translateY(-2px);
+}
+
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* BADGES */
+
+.badge{
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.preparing{
+  background:#fff3cd;
+  color:#856404;
+}
+
+.cooking{
+  background:#cce5ff;
+  color:#004085;
+}
+
+.ready{
+  background:#d4edda;
+  color:#155724;
+}
+
+/* ITEMS */
+
+.items{
+  margin:12px 0;
+  line-height:1.8;
+}
+
+/* BUTTONS */
+
+.action-btn{
+  border:none;
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  color:white;
+  font-weight:bold;
+  margin-top:8px;
+  margin-right:8px;
+}
+
+.cook-btn{
+  background:#007bff;
+}
+
+.ready-btn{
+  background:#28a745;
+}
+
+.delete-btn{
+  background:#dc3545;
+}
+
+/* ORDER INFO */
+
+.order-info{
+  color:#666;
+  font-size:14px;
+  margin-top:8px;
+}
+
+/* EMPTY */
+
+.empty{
+  text-align:center;
+  color:#777;
+  margin-top:40px;
+  font-size:18px;
+}
+
+/* URGENT */
+
+.urgent{
+  border-left:8px solid red;
+}
+
+/* MOBILE */
+
+@media(max-width:700px){
+
+  body{
+    padding:15px;
+  }
+
+  h2{
+    font-size:24px;
+    margin-top:50px;
+  }
+
+}
+
 </style>
 </head>
 
 <body>
 
-<!-- NAV BUTTONS -->
-<button class="top-btn back-btn" onclick="window.location.href='index.html'">
-⬅ Back to POS
+<button class="top-btn back-btn"
+onclick="location.href='index.html'">
+⬅ Back
 </button>
 
-<button class="top-btn logout-btn" onclick="logout()">
+<button class="top-btn logout-btn"
+onclick="logout()">
 🚪 Logout
 </button>
 
 <h2>🍳 Kitchen Dashboard</h2>
 
-<div class="card" id="stats"></div>
+<div class="stats" id="stats"></div>
 
-<div class="card" id="orders"></div>
+<div class="filters">
+  <button class="active"
+  onclick="setFilter(event,'all')">
+  All
+  </button>
+
+  <button onclick="setFilter(event,'Preparing')">
+  Preparing
+  </button>
+
+  <button onclick="setFilter(event,'Cooking')">
+  Cooking
+  </button>
+
+  <button onclick="setFilter(event,'Ready')">
+  Ready
+  </button>
+</div>
+
+<input
+id="searchOrders"
+placeholder="🔎 Search customer or table..."
+onkeyup="loadDashboard()"
+>
+
+<div id="orders"></div>
 
 <script>
 
-/* LOGOUT (session simulation) */
+/* CURRENT FILTER */
+
+let currentFilter = "all";
+
+/* LOGOUT */
+
 function logout(){
+
   alert("Logged out");
-  window.location.href="index.html";
+
+  location.href = "index.html";
 }
 
-/* AUTO REFRESH SYSTEM (real POS feel) */
+/* FILTER BUTTONS */
+
+function setFilter(event,filter){
+
+  currentFilter = filter;
+
+  document
+  .querySelectorAll(".filters button")
+  .forEach(btn=>{
+    btn.classList.remove("active");
+  });
+
+  event.target.classList.add("active");
+
+  loadDashboard();
+}
+
+/* PROFESSIONAL TIME FORMAT */
+
+function getTimeAgo(time){
+
+  if(!time) return "Unknown time";
+
+  let orderTime = new Date(time).getTime();
+
+  if(isNaN(orderTime)) return "Invalid time";
+
+  let diff = Math.floor((Date.now() - orderTime)/1000);
+
+  if(diff < 60){
+    return "Just now";
+  }
+
+  if(diff < 3600){
+
+    let mins = Math.floor(diff/60);
+
+    return mins + (mins===1 ? " minute ago" : " minutes ago");
+  }
+
+  let hours = Math.floor(diff/3600);
+
+  return hours + (hours===1 ? " hour ago" : " hours ago");
+}
+
+/* UPDATE STATUS */
+
+function updateStatus(orderId,newStatus){
+
+  let users =
+  JSON.parse(localStorage.getItem("users"))
+  || {};
+
+  Object.values(users).forEach(user=>{
+
+    if(!user.orders) return;
+
+    user.orders.forEach(order=>{
+
+      if(order.orderId === orderId){
+
+        order.status = newStatus;
+      }
+
+    });
+
+  });
+
+  localStorage.setItem(
+    "users",
+    JSON.stringify(users)
+  );
+
+  loadDashboard();
+}
+
+/* DELETE ORDER */
+
+function deleteOrder(orderId){
+
+  if(!confirm("Delete this order?")) return;
+
+  let users =
+  JSON.parse(localStorage.getItem("users"))
+  || {};
+
+  Object.values(users).forEach(user=>{
+
+    if(!user.orders) return;
+
+    user.orders =
+    user.orders.filter(
+      order => order.orderId !== orderId
+    );
+
+  });
+
+  localStorage.setItem(
+    "users",
+    JSON.stringify(users)
+  );
+
+  loadDashboard();
+}
+
+/* LOAD DASHBOARD */
+
 function loadDashboard(){
 
-  let users = JSON.parse(localStorage.getItem("users")) || {};
+  let users =
+  JSON.parse(localStorage.getItem("users"))
+  || {};
+
+  let ordersDiv =
+  document.getElementById("orders");
+
+  let search =
+  document.getElementById("searchOrders")
+  .value
+  .toLowerCase();
+
+  ordersDiv.innerHTML = "";
 
   let totalOrders = 0;
   let revenue = 0;
-  let map = {};
 
-  // RESET CONTENT EACH REFRESH
-  document.getElementById("orders").innerHTML = "";
+  let preparingCount = 0;
+  let cookingCount = 0;
+  let readyCount = 0;
 
-  Object.values(users).forEach(u=>{
-    totalOrders += u.orders.length;
-    revenue += u.totalSpent;
+  let popularMap = {};
 
-    u.orders.forEach(o=>{
-      o.cart.forEach(i=>{
-        map[i.name] = (map[i.name]||0)+1;
+  let hasOrders = false;
+
+  Object.values(users).forEach(user=>{
+
+    if(!user.orders) return;
+
+    totalOrders += user.orders.length;
+
+    revenue += user.totalSpent || 0;
+
+    user.orders.forEach(order=>{
+
+      if(!order.name) return;
+
+      let customer =
+      order.name.toLowerCase();
+
+      let table =
+      String(order.table || "")
+      .toLowerCase();
+
+      if(
+        !customer.includes(search)
+        &&
+        !table.includes(search)
+      ){
+        return;
+      }
+
+      let status =
+      order.status || "Preparing";
+
+      if(
+        currentFilter !== "all"
+        &&
+        status !== currentFilter
+      ){
+        return;
+      }
+
+      if(status === "Preparing"){
+        preparingCount++;
+      }
+
+      if(status === "Cooking"){
+        cookingCount++;
+      }
+
+      if(status === "Ready"){
+        readyCount++;
+      }
+
+      hasOrders = true;
+
+      order.cart.forEach(item=>{
+
+        popularMap[item.name] =
+        (popularMap[item.name] || 0)
+        +
+        (item.qty || 1);
+
       });
 
-      document.getElementById("orders").innerHTML += `
-        <div class="card">
-          <b>${o.name}</b> (Table ${o.table})<br>
-          Items: ${o.cart.map(i=>i.name + " x" + i.qty).join(", ")}<br>
-          Total: $${o.total}<br>
-          Time: ${o.time}<br>
-          Status: <b>${o.status || "Preparing"}</b>
+      let minsOld =
+      Math.floor(
+        (Date.now() -
+        new Date(order.time).getTime())
+        / 60000
+      );
+
+      let urgent =
+      status === "Preparing"
+      &&
+      minsOld >= 10;
+
+      ordersDiv.innerHTML += `
+
+      <div class="card ${urgent ? 'urgent' : ''}">
+
+        <div class="order-top">
+
+          <div>
+            <h3 style="margin:0;">
+              👤 ${order.name}
+            </h3>
+
+            <div class="order-info">
+              🪑 Table ${order.table || "-"}
+            </div>
+          </div>
+
+          <span class="badge
+          ${
+            status==="Preparing"
+            ? "preparing"
+            : status==="Cooking"
+            ? "cooking"
+            : "ready"
+          }">
+            ${status}
+          </span>
+
         </div>
+
+        <div class="items">
+
+          ${
+            order.cart.map(item=>`
+              🍽️ ${item.name}
+              x${item.qty || 1}
+            `).join("<br>")
+          }
+
+        </div>
+
+        <div class="order-info">
+
+          💰 $${order.total.toFixed(2)}
+          <br>
+
+          🕒 ${getTimeAgo(order.time)}
+
+          <br>
+
+          🆔 ${order.orderId || "N/A"}
+
+        </div>
+
+        ${
+          status==="Preparing"
+          ?
+          `
+          <button
+          class="action-btn cook-btn"
+          onclick="updateStatus('${order.orderId}','Cooking')">
+
+          Start Cooking
+
+          </button>
+          `
+          :
+          ""
+        }
+
+        ${
+          status!=="Ready"
+          ?
+          `
+          <button
+          class="action-btn ready-btn"
+          onclick="updateStatus('${order.orderId}','Ready')">
+
+          Mark Ready
+
+          </button>
+          `
+          :
+          ""
+        }
+
+        <button
+        class="action-btn delete-btn"
+        onclick="deleteOrder('${order.orderId}')">
+
+        Delete
+
+        </button>
+
+      </div>
+
       `;
+
     });
+
   });
 
-  let popular = Object.keys(map).reduce((a,b)=>
-    map[a]>map[b]?a:b,"None");
+  if(!hasOrders){
 
-  document.getElementById("stats").innerHTML = `
-    <b>📊 Live Stats</b><br><br>
-    Total Orders: ${totalOrders}<br>
-    Revenue: $${revenue.toFixed(2)}<br>
-    Most Popular Item: ${popular}
+    ordersDiv.innerHTML = `
+      <div class="empty">
+        🍽️ No matching orders
+      </div>
+    `;
+  }
+
+  let popular =
+  Object.keys(popularMap).reduce(
+    (a,b)=>
+    popularMap[a] > popularMap[b]
+    ? a : b,
+    "None"
+  );
+
+  document.getElementById("stats")
+  .innerHTML = `
+
+    <div class="stat">
+      <h3>${totalOrders}</h3>
+      <p>Total Orders</p>
+    </div>
+
+    <div class="stat">
+      <h3>$${revenue.toFixed(2)}</h3>
+      <p>Total Revenue</p>
+    </div>
+
+    <div class="stat">
+      <h3>${popular}</h3>
+      <p>Popular Item</p>
+    </div>
+
+    <div class="stat">
+      <h3>${preparingCount}</h3>
+      <p>Preparing</p>
+    </div>
+
+    <div class="stat">
+      <h3>${cookingCount}</h3>
+      <p>Cooking</p>
+    </div>
+
+    <div class="stat">
+      <h3>${readyCount}</h3>
+      <p>Ready</p>
+    </div>
+
   `;
 }
 
 /* INIT */
+
 loadDashboard();
 
-/* LIVE AUTO UPDATE (REALISTIC POS FEATURE) */
-setInterval(loadDashboard, 3000);
+/* AUTO REFRESH */
+
+setInterval(loadDashboard,3000);
 
 </script>
 
