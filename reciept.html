@@ -1,69 +1,201 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Receipt</title>
+<title>ByteBites Receipt</title>
 
 <style>
-body {
-  font-family: Arial;
-  background: #f4f6f8;
-  text-align: center;
+
+body{
+  font-family:'Segoe UI', Arial;
+  background:#f4f6f8;
+  margin:0;
+  padding:20px;
 }
 
 /* RECEIPT BOX */
-.box {
-  max-width: 380px;
-  margin: 40px auto;
-  background: white;
-  padding: 20px;
-  border-radius: 15px;
-  text-align: left;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-  animation: fadeIn 0.4s ease;
+.box{
+  max-width:420px;
+  margin:auto;
+  background:white;
+  border-radius:20px;
+  padding:22px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  animation:fadeIn 0.4s ease;
 }
 
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1;}
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
 }
 
-h2 {
-  text-align: center;
-}
-
-.item {
-  display: flex;
-  justify-content: space-between;
-  margin: 6px 0;
-}
-
-.status {
+h2{
   text-align:center;
-  background:#fff3cd;
-  padding:8px;
-  border-radius:8px;
+  margin-bottom:5px;
+}
+
+.sub{
+  text-align:center;
+  color:#777;
   font-size:13px;
-  margin-bottom:10px;
+  margin-bottom:18px;
 }
 
-button {
-  width: 48%;
-  padding: 10px;
-  margin-top: 10px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+/* STATUS */
+.status{
+  text-align:center;
+  padding:10px;
+  border-radius:10px;
+  font-weight:bold;
+  margin-bottom:15px;
+  background:#fff3cd;
+  color:#856404;
 }
 
-.pay {
-  background:#28a745;
-  color:white;
+/* PROGRESS */
+.progress{
+  width:100%;
+  height:12px;
+  background:#eee;
+  border-radius:20px;
+  overflow:hidden;
+  margin-bottom:20px;
 }
 
-.more {
-  background:#ff6b35;
-  color:white;
+.progress-bar{
+  height:100%;
+  width:10%;
+  background:linear-gradient(90deg,#28a745,#5dd65d);
+  transition:1s;
 }
+
+/* INFO */
+.info p{
+  margin:6px 0;
+}
+
+/* ITEMS */
+.item{
+  display:flex;
+  justify-content:space-between;
+  margin:10px 0;
+  padding-bottom:8px;
+  border-bottom:1px solid #f0f0f0;
+  flex-direction:column;
+}
+
+.item-row{
+  display:flex;
+  justify-content:space-between;
+}
+
+/* SUMMARY */
+.summary .row{
+  display:flex;
+  justify-content:space-between;
+  margin:8px 0;
+}
+
+.total{
+  font-size:18px;
+  font-weight:bold;
+}
+
+/* BUTTONS */
+.btn-group{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+button{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.pay{background:#28a745;color:white;}
+.more{background:#ff6b35;color:white;}
+
+/* FOOTER */
+.footer{
+  text-align:center;
+  margin-top:18px;
+  font-size:13px;
+  color:#777;
+}
+
+/* QR */
+.qr{
+  text-align:center;
+  margin-top:20px;
+}
+
+.qr img{
+  width:120px;
+}
+
+/* SUCCESS ANIMATION */
+.success-container{
+  display:none;
+  text-align:center;
+  margin-bottom:20px;
+  animation:fadeInUp 0.5s ease;
+}
+
+.success-text{
+  margin-top:12px;
+  font-size:20px;
+  font-weight:bold;
+  color:#28a745;
+}
+
+.checkmark-circle{
+  width:90px;
+  height:90px;
+  border-radius:50%;
+  border:4px solid #28a745;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:white;
+  animation:pop 0.4s ease, glow 1.5s ease-in-out infinite;
+}
+
+.checkmark{
+  width:22px;
+  height:45px;
+  border-right:4px solid #28a745;
+  border-bottom:4px solid #28a745;
+  transform:rotate(45deg);
+  animation:draw 0.5s ease forwards;
+}
+
+/* ANIMATIONS */
+@keyframes pop{
+  0%{transform:scale(0);}
+  100%{transform:scale(1);}
+}
+
+@keyframes draw{
+  0%{opacity:0; transform:rotate(45deg) scale(0.5);}
+  100%{opacity:1; transform:rotate(45deg) scale(1);}
+}
+
+@keyframes glow{
+  0%{box-shadow:0 0 0 rgba(40,167,69,0);}
+  50%{box-shadow:0 0 25px rgba(40,167,69,0.35);}
+  100%{box-shadow:0 0 0 rgba(40,167,69,0);}
+}
+
+@keyframes fadeInUp{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
 </style>
 </head>
 
@@ -71,114 +203,133 @@ button {
 
 <div class="box">
 
-<h2>🧾 ByteBites Café</h2>
-<p style="text-align:center; font-size:12px; color:#777;">
-  Digital Receipt • Thank you!
-</p>
+  <!-- SUCCESS -->
+  <div class="success-container" id="successBox">
+    <div class="checkmark-circle">
+      <div class="checkmark"></div>
+    </div>
+    <h2 class="success-text">Payment Successful</h2>
+  </div>
 
-<p class="status" id="status">Preparing...</p>
+  <h2>🧾 ByteBites Café</h2>
+  <div class="sub">Digital Receipt • Thank You!</div>
 
-<p><b>Customer:</b> <span id="name"></span></p>
-<p><b>Table:</b> <span id="table"></span></p>
-<p><b>Order ID:</b> <span id="orderId"></span></p>
-<p><b>Time:</b> <span id="time"></span></p>
+  <div class="status" id="status">Preparing...</div>
 
-<hr>
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
-<div id="items"></div>
+  <div class="info">
+    <p><b>Customer:</b> <span id="name"></span></p>
+    <p><b>Table:</b> <span id="table"></span></p>
+    <p><b>Order ID:</b> <span id="orderId"></span></p>
+    <p><b>Time:</b> <span id="time"></span></p>
+  </div>
 
-<hr>
+  <hr>
 
-<div id="summary"></div>
+  <div id="items"></div>
 
-<div style="display:flex; justify-content:space-between;">
-  <button class="pay" onclick="pay()">💳 Pay</button>
-  <button class="more" onclick="orderMore()">➕ Order More</button>
+  <div class="summary" id="summary"></div>
+
+  <div class="btn-group">
+    <button class="pay" onclick="pay()">💳 Pay</button>
+    <button class="more" onclick="orderMore()">➕ Order More</button>
+  </div>
+
+  <div class="qr">
+    <p style="font-size:12px;color:#777;">Scan to return to menu</p>
+    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=index.html">
+  </div>
+
+  <div class="footer">
+    ❤️ Thank you for dining with ByteBites Café
+  </div>
+
 </div>
 
-<p style="text-align:center; margin-top:15px; font-size:13px; color:#777;">
-  ❤️ Thank you for dining with ByteBites Café
-</p>
-
-</div>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
 <script>
 
-let order = JSON.parse(localStorage.getItem("currentOrder"));
+/* LOAD ORDER */
+let order = JSON.parse(localStorage.getItem("lastOrder") || "null");
 
-if (!order) {
+if(!order){
+  alert("No order found.");
   window.location.href = "index.html";
 }
 
-/* BASIC INFO */
-document.getElementById("name").innerText = order.name;
-document.getElementById("table").innerText = order.table;
-document.getElementById("time").innerText = order.time;
-document.getElementById("orderId").innerText =
-  Math.floor(Math.random()*100000);
+/* INFO */
+document.getElementById("name").innerText = order.name || "Guest";
+document.getElementById("table").innerText = order.table || "N/A";
+document.getElementById("time").innerText = order.time || new Date().toLocaleString();
+document.getElementById("orderId").innerText = "BB" + Date.now();
 
-/* ITEMS (FIXED QUANTITY) */
+/* ITEMS */
 let subtotal = 0;
 
-order.cart.forEach(item => {
+order.cart.forEach(item=>{
   let qty = item.qty || 1;
-  let itemTotal = item.price * qty;
-
-  subtotal += itemTotal;
+  let total = item.price * qty;
+  subtotal += total;
 
   let div = document.createElement("div");
   div.className = "item";
+
   div.innerHTML = `
-    <span>${item.name} x${qty}</span>
-    <span>$${itemTotal.toFixed(2)}</span>
+    <div class="item-row">
+      <span>${item.name} x${qty}</span>
+      <span>$${total.toFixed(2)}</span>
+    </div>
   `;
 
   document.getElementById("items").appendChild(div);
 });
 
-/* CHARGES */
-let serviceCharge = subtotal * 0.10;
-let gst = (subtotal + serviceCharge) * 0.09;
-let total = subtotal + serviceCharge + gst;
+/* TOTAL */
+let service = subtotal * 0.1;
+let gst = (subtotal + service) * 0.09;
+let final = subtotal + service + gst;
 
-/* SUMMARY */
 document.getElementById("summary").innerHTML = `
-<div class="item"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
-<div class="item"><span>Service Charge (10%)</span><span>$${serviceCharge.toFixed(2)}</span></div>
-<div class="item"><span>GST (9%)</span><span>$${gst.toFixed(2)}</span></div>
-
-<hr>
-
-<div class="item"><b>Total</b><b>$${total.toFixed(2)}</b></div>
+  <div class="row"><span>Subtotal</span><span>$${subtotal.toFixed(2)}</span></div>
+  <div class="row"><span>Service (10%)</span><span>$${service.toFixed(2)}</span></div>
+  <div class="row"><span>GST (9%)</span><span>$${gst.toFixed(2)}</span></div>
+  <hr>
+  <div class="row total"><span>Total</span><span>$${final.toFixed(2)}</span></div>
 `;
 
-/* STATUS SIMULATION */
+/* STATUS FLOW */
 let status = document.getElementById("status");
+let bar = document.getElementById("progressBar");
 
-setTimeout(()=>status.innerText="Cooking 🍳",2000);
-setTimeout(()=>status.innerText="Ready for pickup ✅",5000);
+setTimeout(()=>{
+  status.innerText = "Cooking 🍳";
+  status.style.background = "#cce5ff";
+  status.style.color = "#004085";
+  bar.style.width = "60%";
+},2000);
 
-/* PAY */
-function pay() {
-  alert("Payment Successful!");
+setTimeout(()=>{
+  status.innerText = "Ready for Pickup ✅";
+  status.style.background = "#d4edda";
+  status.style.color = "#155724";
+  bar.style.width = "100%";
+},5000);
 
-  localStorage.removeItem("currentOrder");
-  localStorage.removeItem("currentUserKey");
+/* PAY FUNCTION (FIXED) */
+function pay(){
 
-  document.body.innerHTML = `
-    <div style="font-family:Arial; text-align:center; margin-top:120px;">
-      <h2>✅ Payment Completed</h2>
-      <p>Thank you for dining with ByteBites Café!</p>
-      <button onclick="window.location.href='index.html'"
-        style="padding:10px; background:#ff6b35; color:white; border:none; border-radius:8px;">
-        Back to Menu
-      </button>
-    </div>
-  `;
+  // optional: keep order info for success page
+  localStorage.setItem("paymentStatus", "success");
+
+  // redirect to success page
+  window.location.href = "payment-success.html";
 }
-
 /* ORDER MORE */
-function orderMore() {
+function orderMore(){
   window.location.href = "index.html";
 }
 
