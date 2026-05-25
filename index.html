@@ -713,14 +713,19 @@ select{
 </div>
 
 <script>
-let usersDB = JSON.parse(localStorage.getItem("usersDB")) || {
+let usersDB = {
   admin: {
-    password: "codebanan",
+    password: "admin123",
     role: "admin"
   }
 };
 
 localStorage.setItem("usersDB", JSON.stringify(usersDB));
+
+function saveCart(){
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
 let defaultMenu = [
 {
   id: "chicken_rice",
@@ -807,70 +812,39 @@ let defaultMenu = [
   }
 }
 ];
-let menu =
-JSON.parse(localStorage.getItem("menu"))
-|| defaultMenu;
+
+let menu = JSON.parse(localStorage.getItem("menu")) || defaultMenu;
 if(!localStorage.getItem("menu")){
-  localStorage.setItem(
-    "menu",
-    JSON.stringify(defaultMenu)
-  );
+  localStorage.setItem("menu", JSON.stringify(defaultMenu));
 }
 
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
-// restore name + table
-document.getElementById("name").value =
-  localStorage.getItem("draftName") || "";
-
-document.getElementById("table").value =
-  localStorage.getItem("draftTable") || "";
-
-// clear drafts so it doesn't auto-fill forever
-localStorage.removeItem("draftName");
-localStorage.removeItem("draftTable");
-
-renderCart();
 let currentCategory = "all";
 let tempItem = null;
 
-/* ================= MENU ================= */
-function updateAdminBadge(){
+/* INIT */
+window.addEventListener("load", init);
 
-  let isAdmin = sessionStorage.getItem("admin_logged_in") === "true";
-  let user = sessionStorage.getItem("admin_user");
-
-  let badge = document.getElementById("adminBadge");
-
-  if(isAdmin && badge){
-    badge.style.display = "block";
-    badge.innerText = `🔐 Logged in as ${user}`;
-  }
+function init(){
+  renderMenu();
+  renderCart();
+  updateAdminBadge();
 }
 
-updateAdminBadge();
-function saveCart(){
-  localStorage.setItem("cart", JSON.stringify(cart));
-}
-
+/* MENU */
 function renderMenu(list = menu){
-
   let html = "";
 
   list.forEach(item => {
     html += `
       <div class="menu-item">
         <img class="menu-img" src="${item.img}">
-
         <div style="flex:1">
           <b>${item.name}</b><br>
           ⭐ ${item.rating} • ${item.prepTime} min<br>
           $${item.basePrice.toFixed(2)}
         </div>
-
-        <button class="add-btn"
-        onclick="openCustomize('${item.id}')">
-          Add
-        </button>
+        <button class="add-btn" onclick="openCustomize('${item.id}')">Add</button>
       </div>
     `;
   });
@@ -878,8 +852,7 @@ function renderMenu(list = menu){
   document.getElementById("menuList").innerHTML = html;
 }
 
-/* ================= SEARCH ================= */
-
+/* SEARCH */
 function filterMenu(){
   let val = document.getElementById("search").value.toLowerCase();
 
@@ -892,50 +865,41 @@ function filterMenu(){
   renderMenu(filtered);
 }
 
-/* ================= CATEGORY ================= */
-
+/* CATEGORY */
 function showCategory(cat){
   currentCategory = cat;
-
-  if(cat === "all"){
-    renderMenu();
-  } else {
-    renderMenu(menu.filter(m => m.category === cat));
-  }
+  if(cat === "all") renderMenu();
+  else renderMenu(menu.filter(m => m.category === cat));
 }
 
-/* ================= CUSTOMIZE ================= */
-
+/* CUSTOMIZE */
 function openCustomize(id){
-
   let item = menu.find(m => m.id === id);
+  if(!item) return;
+
   tempItem = item;
 
   document.getElementById("customTitle").innerText = item.name;
 
-  /* spice */
-  let spiceHTML = item.options.spice.length
-    ? item.options.spice.map(s => `<option>${s}</option>`).join("")
-    : `<option>None</option>`;
+  document.getElementById("spice").innerHTML =
+    item.options.spice.length
+      ? item.options.spice.map(s => `<option>${s}</option>`).join("")
+      : `<option>None</option>`;
 
-  document.getElementById("spice").innerHTML = spiceHTML;
-
-  /* extras */
-  let extrasHTML = item.options.extras.map(e => `
-    <label class="extra-item">
-      <input type="checkbox" value="${e.name}" data-price="${e.price}">
-      ${e.name} (+$${e.price})
-    </label>
-  `).join("");
-
-  document.querySelector(".extras-grid").innerHTML = extrasHTML;
+  document.querySelector(".extras-grid").innerHTML =
+    item.options.extras.map(e => `
+      <label class="extra-item">
+        <input type="checkbox" value="${e.name}" data-price="${e.price}">
+        ${e.name} (+$${e.price})
+      </label>
+    `).join("");
 
   document.getElementById("customBox").style.display = "block";
 }
 
-/* ================= CONFIRM ADD ================= */
-
+/* ADD TO CART */
 function confirmAdd(){
+  if(!tempItem) return;
 
   let spice = document.getElementById("spice").value;
 
@@ -946,62 +910,46 @@ function confirmAdd(){
   .forEach(cb => {
     if(cb.checked){
       extras.push(cb.value);
-      extraPrice += parseFloat(cb.dataset.price || 0);
+      extraPrice += Number(cb.dataset.price || 0);
     }
   });
 
   let finalPrice = tempItem.basePrice + extraPrice;
 
   let finalName =
-    tempItem.name +
-    " (" +
-    spice +
-    (extras.length ? ", " + extras.join(", ") : "") +
-    ")";
+    `${tempItem.name} (${spice}${extras.length ? ", " + extras.join(", ") : ""})`;
 
   addItem(finalName, finalPrice);
-
   closeCustom();
 }
 
-/* ================= CART ================= */
-
+/* CART */
 function addItem(name, price){
-
   let found = cart.find(i => i.name === name);
 
-  if(found){
-    found.qty++;
-  } else {
-    cart.push({ name, price, qty: 1 });
-  }
+  if(found) found.qty++;
+  else cart.push({ name, price, qty: 1 });
 
   saveCart();
   renderCart();
   showNotify();
 }
-function removeItem(index){
 
-  if(cart[index].qty > 1){
-    cart[index].qty--;
-  } else {
-    cart.splice(index, 1);
-  }
+function removeItem(index){
+  if(cart[index].qty > 1) cart[index].qty--;
+  else cart.splice(index, 1);
 
   saveCart();
   renderCart();
 }
-/* ================= CART RENDER ================= */
 
 function renderCart(){
-
   let div = document.getElementById("cart");
   div.innerHTML = "";
 
   let total = 0;
 
   cart.forEach((c, i) => {
-
     total += c.price * c.qty;
 
     div.innerHTML += `
@@ -1010,7 +958,6 @@ function renderCart(){
           <b>${c.name}</b><br>
           $${c.price.toFixed(2)} × ${c.qty}
         </div>
-
         <div>
           <button onclick="addItem('${c.name}', ${c.price})">+</button>
           <button onclick="removeItem(${i})" style="background:red;color:white;">-</button>
@@ -1019,15 +966,12 @@ function renderCart(){
     `;
   });
 
-  document.getElementById("total").innerText =
-    "Total: $" + total.toFixed(2);
-
+  document.getElementById("total").innerText = "Total: $" + total.toFixed(2);
   document.getElementById("waitTime").innerText =
     "⏳ Estimated wait: " + (cart.reduce((s,i)=>s+i.qty*3,0)) + " mins";
 }
 
-/* ================= NOTIFY ================= */
-
+/* NOTIFY */
 function showNotify(){
   let n = document.getElementById("notify");
   n.style.display = "block";
@@ -1039,39 +983,26 @@ function showNotify(){
   }, 1200);
 }
 
-/* ================= DARK MODE ================= */
-
+/* DARK MODE */
 function toggleDarkMode(){
   document.body.classList.toggle("dark");
-
-  let btn = document.querySelector(".toggle");
-  btn.innerHTML = document.body.classList.contains("dark")
-    ? "☀️ Mode"
-    : "🌙 Mode";
 }
 
-/* ================= ADMIN ================= */
-function goAdmin(){
+/* CUSTOM BOX */
+function closeCustom(){
+  document.getElementById("customBox").style.display = "none";
+}
 
+/* ADMIN */
+function goAdmin(){
   let username = prompt("Username:");
   let password = prompt("Password:");
 
   let usersDB = JSON.parse(localStorage.getItem("usersDB"));
 
-  if(!usersDB[username]){
-    alert("User not found");
-    return;
-  }
-
-  if(usersDB[username].password !== password){
-    alert("Wrong password");
-    return;
-  }
-
-  if(usersDB[username].role !== "admin"){
-    alert("No admin access");
-    return;
-  }
+  if(!usersDB[username]) return alert("User not found");
+  if(usersDB[username].password !== password) return alert("Wrong password");
+  if(usersDB[username].role !== "admin") return alert("No admin access");
 
   sessionStorage.setItem("admin_logged_in", "true");
   sessionStorage.setItem("admin_user", username);
@@ -1079,19 +1010,47 @@ function goAdmin(){
   location.href = "admin.html";
 }
 
-/* ================= CUSTOM BOX ================= */
+function updateAdminBadge(){
 
-function closeCustom(){
-  document.getElementById("customBox").style.display = "none";
+  let isAdmin =
+    sessionStorage.getItem("admin_logged_in") === "true";
+
+  let user =
+    sessionStorage.getItem("admin_user");
+
+  let badge =
+    document.getElementById("adminBadge");
+
+  if(!badge) return;
+
+  if(isAdmin && user){
+
+    badge.style.display = "block";
+
+    badge.innerText =
+      `🔐 Logged in as Admin - click to logout`;
+
+  } else {
+
+    badge.style.display = "none";
+  }
+}
+function logoutAdmin(){
+
+  sessionStorage.removeItem("admin_logged_in");
+  sessionStorage.removeItem("admin_user");
+
+  updateAdminBadge();
 }
 
-/* ================= INIT ================= */
-
-renderMenu();
+/* PLACE ORDER */
 function placeOrder(){
 
-  let name = document.getElementById("name").value.trim();
-  let table = document.getElementById("table").value;
+  let name =
+    document.getElementById("name").value.trim();
+
+  let table =
+    document.getElementById("table").value;
 
   if(!name){
     alert("Please enter your name!");
@@ -1110,40 +1069,65 @@ function placeOrder(){
 
   let orderId = "BB" + Date.now();
 
-  let cartCopy = JSON.parse(JSON.stringify(cart));
+  let cartCopy =
+    JSON.parse(JSON.stringify(cart));
 
-  let total = cartCopy.reduce((s,i)=>s+i.price*i.qty,0);
+  let total =
+    cartCopy.reduce((s,i)=>s+i.price*i.qty,0);
 
   let orderData = {
+
     orderId,
     name,
     table,
+
     cart: cartCopy,
+
     total,
+
     status: "Preparing",
+
     time: new Date().toISOString(),
+
     paid: false
   };
 
-  localStorage.setItem("lastOrderId", orderId);
-  localStorage.setItem("order_" + orderId, JSON.stringify(orderData));
+  localStorage.setItem(
+    "lastOrderId",
+    orderId
+  );
 
-  let users = JSON.parse(localStorage.getItem("users")) || {};
+  localStorage.setItem(
+    "order_" + orderId,
+    JSON.stringify(orderData)
+  );
+
+  let users =
+    JSON.parse(localStorage.getItem("users"))
+    || {};
 
   if(!users[name]){
-    users[name] = { totalSpent: 0, orders: [] };
+    users[name] = {
+      totalSpent: 0,
+      orders: []
+    };
   }
 
   users[name].orders.push(orderData);
+
   users[name].totalSpent += total;
 
-  localStorage.setItem("users", JSON.stringify(users));
+  localStorage.setItem(
+    "users",
+    JSON.stringify(users)
+  );
 
   alert("Order placed!");
 
-  // ✅ FIXED CART RESET (ONLY THIS)
   cart = [];
+
   saveCart();
+
   renderCart();
 
   document.getElementById("name").value = "";
