@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-
 body{
   font-family:'Segoe UI', Arial;
   margin:0;
@@ -15,7 +14,6 @@ body{
 }
 
 /* HEADER */
-
 h2{
   text-align:center;
   margin-bottom:15px;
@@ -23,7 +21,6 @@ h2{
 }
 
 /* TOP BUTTONS */
-
 .top-btn{
   position:fixed;
   top:10px;
@@ -48,7 +45,6 @@ h2{
 }
 
 /* STATS */
-
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
@@ -76,7 +72,6 @@ h2{
 }
 
 /* FILTERS */
-
 .filters{
   display:flex;
   gap:8px;
@@ -102,7 +97,6 @@ h2{
 }
 
 /* SEARCH */
-
 input{
   width:100%;
   padding:14px;
@@ -114,7 +108,6 @@ input{
 }
 
 /* ORDER CARD */
-
 .card{
   background:white;
   padding:18px;
@@ -128,6 +121,7 @@ input{
   transform:translateY(-2px);
 }
 
+/* ORDER TOP */
 .order-top{
   display:flex;
   justify-content:space-between;
@@ -137,7 +131,6 @@ input{
 }
 
 /* BADGES */
-
 .badge{
   padding:6px 12px;
   border-radius:999px;
@@ -145,30 +138,17 @@ input{
   font-weight:bold;
 }
 
-.preparing{
-  background:#fff3cd;
-  color:#856404;
-}
-
-.cooking{
-  background:#cce5ff;
-  color:#004085;
-}
-
-.ready{
-  background:#d4edda;
-  color:#155724;
-}
+.preparing{ background:#fff3cd; color:#856404; }
+.cooking{ background:#cce5ff; color:#004085; }
+.ready{ background:#d4edda; color:#155724; }
 
 /* ITEMS */
-
 .items{
   margin:12px 0;
   line-height:1.8;
 }
 
 /* BUTTONS */
-
 .action-btn{
   border:none;
   border-radius:10px;
@@ -180,20 +160,11 @@ input{
   margin-right:8px;
 }
 
-.cook-btn{
-  background:#007bff;
-}
-
-.ready-btn{
-  background:#28a745;
-}
-
-.delete-btn{
-  background:#dc3545;
-}
+.cook-btn{ background:#007bff; }
+.ready-btn{ background:#28a745; }
+.delete-btn{ background:#dc3545; }
 
 /* ORDER INFO */
-
 .order-info{
   color:#666;
   font-size:14px;
@@ -201,7 +172,6 @@ input{
 }
 
 /* EMPTY */
-
 .empty{
   text-align:center;
   color:#777;
@@ -210,38 +180,25 @@ input{
 }
 
 /* URGENT */
-
 .urgent{
   border-left:8px solid red;
 }
 
 /* MOBILE */
-
 @media(max-width:700px){
-
-  body{
-    padding:15px;
-  }
-
-  h2{
-    font-size:24px;
-    margin-top:50px;
-  }
-
+  body{ padding:15px; }
+  h2{ font-size:24px; margin-top:50px; }
 }
-
 </style>
 </head>
 
 <body>
 
-<button class="top-btn back-btn"
-onclick="location.href='index.html'">
+<button class="top-btn back-btn" onclick="location.href='index.html'">
 ⬅ Back
 </button>
 
-<button class="top-btn logout-btn"
-onclick="logout()">
+<button class="top-btn logout-btn" onclick="logout()">
 🚪 Logout
 </button>
 
@@ -250,414 +207,354 @@ onclick="logout()">
 <div class="stats" id="stats"></div>
 
 <div class="filters">
-  <button class="active"
-  onclick="setFilter(event,'all')">
-  All
-  </button>
-
-  <button onclick="setFilter(event,'Preparing')">
-  Preparing
-  </button>
-
-  <button onclick="setFilter(event,'Cooking')">
-  Cooking
-  </button>
-
-  <button onclick="setFilter(event,'Ready')">
-  Ready
-  </button>
+  <button class="active" onclick="setFilter(event,'all')">All</button>
+  <button onclick="setFilter(event,'Preparing')">Preparing</button>
+  <button onclick="setFilter(event,'Cooking')">Cooking</button>
+  <button onclick="setFilter(event,'Ready')">Ready</button>
 </div>
 
-<input
-id="searchOrders"
-placeholder="🔎 Search customer or table..."
-onkeyup="loadDashboard()"
->
+<input id="searchOrders" placeholder="🔎 Search customer or table..." onkeyup="loadDashboard()">
 
 <div id="orders"></div>
 
+<hr style="margin:30px 0;">
+
+<h2>🛠 Menu Manager</h2>
+
+<div class="card">
+  <input id="itemName" placeholder="Item Name">
+  <input id="itemPrice" type="number" placeholder="Price">
+
+  <select id="itemCategory">
+    <option value="mains">Mains</option>
+    <option value="drinks">Drinks</option>
+    <option value="snacks">Snacks</option>
+  </select>
+
+  <input type="file" id="itemImageFile" accept="image/*">
+
+  <img id="previewImg"
+       style="width:120px;margin-top:12px;border-radius:12px;display:none;">
+
+  <br><br>
+
+  <button class="action-btn ready-btn" onclick="addMenuItem()">
+    Add Menu Item
+  </button>
+</div>
+
+<div id="menuManager"></div>
+
 <script>
 
-/* CURRENT FILTER */
+if(sessionStorage.getItem("admin_logged_in") !== "true"){
+  alert("Access denied");
+  window.location.href = "index.html";
+}
+
+/* =========================
+YOUR ORIGINAL FUNCTIONS
+========================= */
 
 let currentFilter = "all";
+let uploadedImage = "";
 
 /* LOGOUT */
-
 function logout(){
-
   alert("Logged out");
-
   location.href = "index.html";
 }
 
-/* FILTER BUTTONS */
-
+/* FILTER */
 function setFilter(event,filter){
-
   currentFilter = filter;
 
-  document
-  .querySelectorAll(".filters button")
-  .forEach(btn=>{
-    btn.classList.remove("active");
-  });
+  document.querySelectorAll(".filters button")
+  .forEach(btn => btn.classList.remove("active"));
 
   event.target.classList.add("active");
 
   loadDashboard();
 }
 
-/* PROFESSIONAL TIME FORMAT */
-
+/* TIME */
 function getTimeAgo(time){
 
   if(!time) return "Unknown time";
 
   let orderTime = new Date(time).getTime();
-
   if(isNaN(orderTime)) return "Invalid time";
 
   let diff = Math.floor((Date.now() - orderTime)/1000);
 
-  if(diff < 60){
-    return "Just now";
-  }
+  if(diff < 60) return "Just now";
 
   if(diff < 3600){
-
     let mins = Math.floor(diff/60);
-
     return mins + (mins===1 ? " minute ago" : " minutes ago");
   }
 
   let hours = Math.floor(diff/3600);
-
   return hours + (hours===1 ? " hour ago" : " hours ago");
 }
 
-/* UPDATE STATUS */
-
+/* STATUS */
 function updateStatus(orderId,newStatus){
-
-  let users =
-  JSON.parse(localStorage.getItem("users"))
-  || {};
+  let users = JSON.parse(localStorage.getItem("users")) || {};
 
   Object.values(users).forEach(user=>{
-
     if(!user.orders) return;
 
     user.orders.forEach(order=>{
-
       if(order.orderId === orderId){
-
         order.status = newStatus;
       }
-
     });
-
   });
 
-  localStorage.setItem(
-    "users",
-    JSON.stringify(users)
-  );
-
+  localStorage.setItem("users", JSON.stringify(users));
   loadDashboard();
 }
 
 /* DELETE ORDER */
-
 function deleteOrder(orderId){
-
   if(!confirm("Delete this order?")) return;
 
-  let users =
-  JSON.parse(localStorage.getItem("users"))
-  || {};
+  let users = JSON.parse(localStorage.getItem("users")) || {};
 
   Object.values(users).forEach(user=>{
-
     if(!user.orders) return;
 
-    user.orders =
-    user.orders.filter(
+    user.orders = user.orders.filter(
       order => order.orderId !== orderId
     );
-
   });
 
-  localStorage.setItem(
-    "users",
-    JSON.stringify(users)
-  );
-
+  localStorage.setItem("users", JSON.stringify(users));
   loadDashboard();
 }
 
-/* LOAD DASHBOARD */
-
+/* DASHBOARD */
 function loadDashboard(){
 
-  let users =
-  JSON.parse(localStorage.getItem("users"))
-  || {};
-
-  let ordersDiv =
-  document.getElementById("orders");
-
-  let search =
-  document.getElementById("searchOrders")
-  .value
-  .toLowerCase();
+  let users = JSON.parse(localStorage.getItem("users")) || {};
+  let ordersDiv = document.getElementById("orders");
+  let search = document.getElementById("searchOrders").value.toLowerCase();
 
   ordersDiv.innerHTML = "";
 
   let totalOrders = 0;
   let revenue = 0;
-
   let preparingCount = 0;
   let cookingCount = 0;
   let readyCount = 0;
-
   let popularMap = {};
-
-  let hasOrders = false;
-
+  let popularItem = "None";
+  
   Object.values(users).forEach(user=>{
 
     if(!user.orders) return;
 
     totalOrders += user.orders.length;
-
     revenue += user.totalSpent || 0;
 
     user.orders.forEach(order=>{
-
+      if (Object.keys(popularMap).length > 0) {
+  popularItem = Object.entries(popularMap)
+    .sort((a, b) => b[1] - a[1])[0][0];
+}
       if(!order.name) return;
 
-      let customer =
-      order.name.toLowerCase();
+      let customer = order.name.toLowerCase();
+      let table = String(order.table || "").toLowerCase();
 
-      let table =
-      String(order.table || "")
-      .toLowerCase();
+      if(!customer.includes(search) && !table.includes(search)) return;
 
-      if(
-        !customer.includes(search)
-        &&
-        !table.includes(search)
-      ){
-        return;
-      }
+      let status = order.status || "Preparing";
 
-      let status =
-      order.status || "Preparing";
+      if(currentFilter !== "all" && status !== currentFilter) return;
 
-      if(
-        currentFilter !== "all"
-        &&
-        status !== currentFilter
-      ){
-        return;
-      }
-
-      if(status === "Preparing"){
-        preparingCount++;
-      }
-
-      if(status === "Cooking"){
-        cookingCount++;
-      }
-
-      if(status === "Ready"){
-        readyCount++;
-      }
-
-      hasOrders = true;
+      if(status === "Preparing") preparingCount++;
+      if(status === "Cooking") cookingCount++;
+      if(status === "Ready") readyCount++;
 
       order.cart.forEach(item=>{
-
         popularMap[item.name] =
-        (popularMap[item.name] || 0)
-        +
-        (item.qty || 1);
-
+        (popularMap[item.name] || 0) + (item.qty || 1);
       });
 
-      let minsOld =
-      Math.floor(
-        (Date.now() -
-        new Date(order.time).getTime())
-        / 60000
-      );
-
-      let urgent =
-      status === "Preparing"
-      &&
-      minsOld >= 10;
+      let minsOld = Math.floor((Date.now() - new Date(order.time).getTime())/60000);
+      let urgent = status==="Preparing" && minsOld >= 10;
 
       ordersDiv.innerHTML += `
-
       <div class="card ${urgent ? 'urgent' : ''}">
-
         <div class="order-top">
 
           <div>
-            <h3 style="margin:0;">
-              👤 ${order.name}
-            </h3>
-
-            <div class="order-info">
-              🪑 Table ${order.table || "-"}
-            </div>
+            <h3 style="margin:0;">👤 ${order.name}</h3>
+            <div class="order-info">🪑 Table ${order.table || "-"}</div>
           </div>
 
-          <span class="badge
-          ${
-            status==="Preparing"
-            ? "preparing"
-            : status==="Cooking"
-            ? "cooking"
-            : "ready"
-          }">
+          <span class="badge ${status==="Preparing" ? "preparing" : status==="Cooking" ? "cooking" : "ready"}">
             ${status}
           </span>
 
         </div>
 
         <div class="items">
-
-          ${
-            order.cart.map(item=>`
-              🍽️ ${item.name}
-              x${item.qty || 1}
-            `).join("<br>")
-          }
-
+          ${order.cart.map(item => `🍽️ ${item.name} x${item.qty || 1}`).join("<br>")}
         </div>
 
         <div class="order-info">
-
-          💰 $${order.total.toFixed(2)}
-          <br>
-
-          🕒 ${getTimeAgo(order.time)}
-
-          <br>
-
+          💰 $${order.total.toFixed(2)}<br>
+          🕒 ${getTimeAgo(order.time)}<br>
           🆔 ${order.orderId || "N/A"}
-
         </div>
 
-        ${
-          status==="Preparing"
-          ?
-          `
-          <button
-          class="action-btn cook-btn"
-          onclick="updateStatus('${order.orderId}','Cooking')">
+        ${status==="Preparing"
+          ? `<button class="action-btn cook-btn"
+              onclick="updateStatus('${order.orderId}','Cooking')">
+              Start Cooking</button>` : ""}
 
-          Start Cooking
+        ${status!=="Ready"
+          ? `<button class="action-btn ready-btn"
+              onclick="updateStatus('${order.orderId}','Ready')">
+              Mark Ready</button>` : ""}
 
-          </button>
-          `
-          :
-          ""
-        }
-
-        ${
-          status!=="Ready"
-          ?
-          `
-          <button
-          class="action-btn ready-btn"
-          onclick="updateStatus('${order.orderId}','Ready')">
-
-          Mark Ready
-
-          </button>
-          `
-          :
-          ""
-        }
-
-        <button
-        class="action-btn delete-btn"
+        <button class="action-btn delete-btn"
         onclick="deleteOrder('${order.orderId}')">
+        Delete</button>
 
-        Delete
-
-        </button>
-
-      </div>
-
-      `;
-
+      </div>`;
     });
-
   });
 
-  if(!hasOrders){
 
-    ordersDiv.innerHTML = `
-      <div class="empty">
-        🍽️ No matching orders
-      </div>
-    `;
-  }
-
-  let popular =
-  Object.keys(popularMap).reduce(
-    (a,b)=>
-    popularMap[a] > popularMap[b]
-    ? a : b,
-    "None"
-  );
-
-  document.getElementById("stats")
-  .innerHTML = `
-
-    <div class="stat">
-      <h3>${totalOrders}</h3>
-      <p>Total Orders</p>
-    </div>
-
-    <div class="stat">
-      <h3>$${revenue.toFixed(2)}</h3>
-      <p>Total Revenue</p>
-    </div>
-
-    <div class="stat">
-      <h3>${popular}</h3>
-      <p>Popular Item</p>
-    </div>
-
-    <div class="stat">
-      <h3>${preparingCount}</h3>
-      <p>Preparing</p>
-    </div>
-
-    <div class="stat">
-      <h3>${cookingCount}</h3>
-      <p>Cooking</p>
-    </div>
-
-    <div class="stat">
-      <h3>${readyCount}</h3>
-      <p>Ready</p>
-    </div>
-
+  document.getElementById("stats").innerHTML = `
+    <div class="stat"><h3>${totalOrders}</h3><p>Total Orders</p></div>
+    <div class="stat"><h3>$${revenue.toFixed(2)}</h3><p>Total Revenue</p></div>
+   <div class="stat"><h3>${popularItem}</h3><p>Popular Item</p></div>
+    <div class="stat"><h3>${preparingCount}</h3><p>Preparing</p></div>
+    <div class="stat"><h3>${cookingCount}</h3><p>Cooking</p></div>
+    <div class="stat"><h3>${readyCount}</h3><p>Ready</p></div>
   `;
 }
 
+/* MENU IMAGE */
+document.getElementById("itemImageFile").addEventListener("change", function(e){
+  let file = e.target.files[0];
+  if(!file) return;
+
+  let reader = new FileReader();
+
+  reader.onload = function(event){
+    uploadedImage = event.target.result;
+
+    document.getElementById("previewImg").src = uploadedImage;
+    document.getElementById("previewImg").style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+});
+
+/* MENU */
+function updateAdminBadge(){
+
+  let isAdmin = sessionStorage.getItem("admin_logged_in") === "true";
+  let user = sessionStorage.getItem("admin_user");
+
+  let badge = document.getElementById("adminBadge");
+
+  if(isAdmin && badge){
+    badge.style.display = "block";
+    badge.innerText = `🔐 Logged in as ${user}`;
+  }
+}
+function logoutAdmin(){
+  sessionStorage.removeItem("admin_logged_in");
+  sessionStorage.removeItem("admin_user");
+  location.reload();
+}
+updateAdminBadge();
+function loadMenuManager(){
+
+  let menu = JSON.parse(localStorage.getItem("menu")) || [];
+
+  let html = "";
+
+  menu.forEach((item,index)=>{
+
+    html += `
+    <div class="card">
+      <h3>${item.name}</h3>
+      <p>💰 $${item.basePrice.toFixed(2)}</p>
+      <p>📂 ${item.category}</p>
+
+      <img src="${item.img}"
+           style="width:120px;border-radius:12px;margin-top:10px;">
+
+      <br><br>
+
+      <button class="action-btn cook-btn"
+      onclick="editMenuItem(${index})">Edit</button>
+
+      <button class="action-btn delete-btn"
+      onclick="deleteMenuItem(${index})">Delete</button>
+    </div>`;
+  });
+
+  document.getElementById("menuManager").innerHTML = html;
+}
+
+/* ADD MENU */
+function addMenuItem(){
+
+  let menu = JSON.parse(localStorage.getItem("menu")) || [];
+
+  let itemName = document.getElementById("itemName").value;
+  let itemPrice = parseFloat(document.getElementById("itemPrice").value);
+  let itemCategory = document.getElementById("itemCategory").value;
+
+  if(!itemName || !itemPrice){
+    alert("Please fill all fields");
+    return;
+  }
+
+  let newItem = {
+    id: Date.now().toString(),
+    name: itemName,
+    basePrice: itemPrice,
+    category: itemCategory,
+    img: uploadedImage || "https://via.placeholder.com/120?text=No+Image",
+    rating: 5,
+    prepTime: 5,
+    tags: [],
+    options: { spice:["None"], extras:[] }
+  };
+
+  menu.push(newItem);
+
+  localStorage.setItem("menu", JSON.stringify(menu));
+
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemPrice").value = "";
+  document.getElementById("previewImg").style.display = "none";
+  uploadedImage = "";
+
+  loadMenuManager();
+}
+
+/* DELETE MENU */
+function deleteMenuItem(index){
+  let menu = JSON.parse(localStorage.getItem("menu")) || [];
+  menu.splice(index,1);
+  localStorage.setItem("menu", JSON.stringify(menu));
+  loadMenuManager();
+}
+
 /* INIT */
-
 loadDashboard();
-
-/* AUTO REFRESH */
-
+loadMenuManager();
 setInterval(loadDashboard,3000);
 
 </script>
