@@ -4,20 +4,26 @@
 <title>ByteBites Café Menu</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* =========================
    BODY
 ========================= */
 
 body{
-  font-family:'Segoe UI',Arial;
-  margin:0;
-  background:#f4f6f8;
+  font-family: 'Manrope', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+
+  background: linear-gradient(180deg, #f4f6f8, #eef1f5);
+  
   transition: background 0.6s ease, color 0.3s ease;
 }
-
 /* =========================
-   DARK MODE
+   PREMIUM DARK MODE
 ========================= */
 
 .dark{
@@ -91,18 +97,17 @@ body{
 ========================= */
 
 header{
-  background: linear-gradient(135deg,#ff6b35,#ff8c42);
-  color:white;
-  text-align:center;
-  padding:18px;
-  font-size:22px;
-  font-weight:bold;
-  position:sticky;
-  top:0;
-  z-index:100;
-  box-shadow:0 5px 20px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #d3542a, #e86a3a, #ff8a4f);
+  color: white;
+  text-align: center;
+  padding: 18px;
+  font-size: 22px;
+  font-weight: bold;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.20);
 }
-
 .dark header{
   background: linear-gradient(135deg,#7b2ff7,#4f46e5);
 }
@@ -231,13 +236,26 @@ button:active{
 
 /* ADD BUTTON */
 
-.add-btn{
+.add-btn,
+.place-order-btn{
+  background: linear-gradient(135deg, #ff6b35, #ff8c42);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(255,107,53,0.25);
+}
 
-  background: linear-gradient(135deg,#ff6b35,#ff8c42);
+.add-btn:hover,
+.place-order-btn:hover{
+  transform: translateY(-3px) scale(1.02);
+  filter: brightness(1.1);
+}
 
-  color:white;
-
-  box-shadow:0 4px 15px rgba(255,107,53,0.25);
+.add-btn:active,
+.place-order-btn:active{
+  transform: scale(0.98);
 }
 
 .dark .add-btn{
@@ -366,6 +384,19 @@ select{
   z-index:9999;
 
   font-weight:bold;
+}
+
+#adminBadge{
+  position:fixed;
+  top:10px;
+  right:10px;
+  background:#111;
+  color:white;
+  padding:8px 12px;
+  border-radius:10px;
+  font-size:13px;
+  z-index:9999;
+  box-shadow:0 6px 18px rgba(0,0,0,0.2);
 }
 
 /* =========================
@@ -522,18 +553,6 @@ select{
   z-index:999;
 }
 
-/* =========================
-   QR BOX
-========================= */
-
-.qr-box{
-  text-align:center;
-}
-
-.qr-box img{
-  display:block;
-  margin:0 auto;
-}
 
 /* =========================
    MOBILE
@@ -560,18 +579,11 @@ select{
 <!-- ADMIN BUTTON -->
 <div id="adminAccess" onclick="goAdmin()"></div>
 
+<div id="adminBadge" style="display:none;" onclick="logoutAdmin()">
+  🔐 Logged in as Admin (click to logout)
+</div>
+
 <div class="container">
-
-  <!-- QR CARD -->
-  <div class="card qr-box">
-    <h3>📱 Scan to Order</h3>
-
-    <img
-    src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=index.html"
-    style="width:150px;">
-
-    <p>Scan to access menu</p>
-  </div>
 
   <!-- MENU -->
   <div class="card">
@@ -701,8 +713,15 @@ select{
 </div>
 
 <script>
+let usersDB = JSON.parse(localStorage.getItem("usersDB")) || {
+  admin: {
+    password: "codebanan",
+    role: "admin"
+  }
+};
 
-let menu = [
+localStorage.setItem("usersDB", JSON.stringify(usersDB));
+let defaultMenu = [
 {
   id: "chicken_rice",
   name: "Chicken Rice",
@@ -788,12 +807,50 @@ let menu = [
   }
 }
 ];
+let menu =
+JSON.parse(localStorage.getItem("menu"))
+|| defaultMenu;
+if(!localStorage.getItem("menu")){
+  localStorage.setItem(
+    "menu",
+    JSON.stringify(defaultMenu)
+  );
+}
 
-let cart = [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+// restore name + table
+document.getElementById("name").value =
+  localStorage.getItem("draftName") || "";
+
+document.getElementById("table").value =
+  localStorage.getItem("draftTable") || "";
+
+// clear drafts so it doesn't auto-fill forever
+localStorage.removeItem("draftName");
+localStorage.removeItem("draftTable");
+
+renderCart();
 let currentCategory = "all";
 let tempItem = null;
 
 /* ================= MENU ================= */
+function updateAdminBadge(){
+
+  let isAdmin = sessionStorage.getItem("admin_logged_in") === "true";
+  let user = sessionStorage.getItem("admin_user");
+
+  let badge = document.getElementById("adminBadge");
+
+  if(isAdmin && badge){
+    badge.style.display = "block";
+    badge.innerText = `🔐 Logged in as ${user}`;
+  }
+}
+
+updateAdminBadge();
+function saveCart(){
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
 
 function renderMenu(list = menu){
 
@@ -919,10 +976,10 @@ function addItem(name, price){
     cart.push({ name, price, qty: 1 });
   }
 
+  saveCart();
   renderCart();
   showNotify();
 }
-
 function removeItem(index){
 
   if(cart[index].qty > 1){
@@ -931,9 +988,9 @@ function removeItem(index){
     cart.splice(index, 1);
   }
 
+  saveCart();
   renderCart();
 }
-
 /* ================= CART RENDER ================= */
 
 function renderCart(){
@@ -994,15 +1051,32 @@ function toggleDarkMode(){
 }
 
 /* ================= ADMIN ================= */
-
 function goAdmin(){
-  let pass = prompt("Enter admin password");
 
-  if(pass === "1234"){
-    location.href = "admin.html";
-  } else {
-    alert("Wrong password");
+  let username = prompt("Username:");
+  let password = prompt("Password:");
+
+  let usersDB = JSON.parse(localStorage.getItem("usersDB"));
+
+  if(!usersDB[username]){
+    alert("User not found");
+    return;
   }
+
+  if(usersDB[username].password !== password){
+    alert("Wrong password");
+    return;
+  }
+
+  if(usersDB[username].role !== "admin"){
+    alert("No admin access");
+    return;
+  }
+
+  sessionStorage.setItem("admin_logged_in", "true");
+  sessionStorage.setItem("admin_user", username);
+
+  location.href = "admin.html";
 }
 
 /* ================= CUSTOM BOX ================= */
@@ -1034,46 +1108,51 @@ function placeOrder(){
     return;
   }
 
-  let total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+  let orderId = "BB" + Date.now();
+
+  let cartCopy = JSON.parse(JSON.stringify(cart));
+
+  let total = cartCopy.reduce((s,i)=>s+i.price*i.qty,0);
+
+  let orderData = {
+    orderId,
+    name,
+    table,
+    cart: cartCopy,
+    total,
+    status: "Preparing",
+    time: new Date().toISOString(),
+    paid: false
+  };
+
+  localStorage.setItem("lastOrderId", orderId);
+  localStorage.setItem("order_" + orderId, JSON.stringify(orderData));
 
   let users = JSON.parse(localStorage.getItem("users")) || {};
 
   if(!users[name]){
-    users[name] = {
-      totalSpent: 0,
-      orders: []
-    };
+    users[name] = { totalSpent: 0, orders: [] };
   }
-
-  let orderData = {
-    name,
-    table,
-    cart,
-    total,
-    status: "Preparing",
-    time: new Date().toLocaleString(),
-    orderId: "BB" + Date.now()
-  };
 
   users[name].orders.push(orderData);
   users[name].totalSpent += total;
 
   localStorage.setItem("users", JSON.stringify(users));
-  localStorage.setItem("lastOrder", JSON.stringify(orderData));
 
   alert("Order placed!");
 
+  // ✅ FIXED CART RESET (ONLY THIS)
   cart = [];
+  saveCart();
   renderCart();
 
   document.getElementById("name").value = "";
   document.getElementById("table").value = "";
 
   setTimeout(() => {
-    location.href = "receipt.html";
-  }, 800);
+    window.location.href = "receipt.html";
+  }, 500);
 }
 </script>
-
 </body>
 </html>
